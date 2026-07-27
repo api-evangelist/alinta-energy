@@ -1,0 +1,86 @@
+generated: '2026-07-27'
+method: searched
+source: https://consumerdatastandardsaustralia.github.io/standards/#non-functional-requirements
+note: >
+  Alinta Energy publishes no rate-limit documentation of its own. The thresholds below
+  are the Consumer Data Standards Non-functional Requirements that bind every CDR data
+  holder, including Alinta: calls in excess of these thresholds MAY be freely throttled
+  or rejected by the data holder without affecting its availability or performance
+  obligations. No rate-limit response headers are defined by the standard, so a client
+  learns it has been shaped only from rejections.
+signaling:
+  headers: none defined by the Consumer Data Standards
+  rejection: Calls beyond a threshold may be throttled or rejected; excess calls may also be excluded from the holder's performance measurement.
+rate_limits:
+- name: Customer present / authorisation traffic - per customer
+  limit_count: 10
+  interval: second
+  unit: TPS
+  scope: per customer
+- name: Customer present / authorisation traffic - per software product
+  limit_count: 50
+  interval: second
+  unit: TPS
+  scope: per Data Recipient Software Product
+- name: Customer present sessions
+  limit_count: null
+  interval: day
+  unit: sessions
+  scope: unlimited sessions per day
+- name: Unattended traffic - sessions (low traffic periods)
+  limit_count: 20
+  interval: day
+  unit: sessions
+  scope: per customer, per Data Recipient Software Product
+- name: Unattended traffic - calls per session
+  limit_count: 100
+  interval: session
+  unit: calls
+  scope: total calls per session
+- name: Unattended traffic - per session
+  limit_count: 5
+  interval: second
+  unit: TPS
+  scope: per session
+- name: Unattended traffic - per software product
+  limit_count: 50
+  interval: second
+  unit: TPS
+  scope: per Data Recipient Software Product
+- name: Public (unauthenticated) traffic
+  limit_count: 300
+  interval: second
+  unit: TPS
+  scope: total across all consumers, additive to secure traffic
+  applies_to: [listEnergyPlans, getEnergyPlanDetail, getStatus, getOutages]
+- name: Secure traffic peak (data holder, by active authorisation count)
+  unit: peak TPS total across all consumers
+  tiers:
+  - {active_authorisations: 0-10000, limit_count: 150}
+  - {active_authorisations: 10001-20000, limit_count: 200}
+  - {active_authorisations: 20001-30000, limit_count: 250}
+  - {active_authorisations: 30001-40000, limit_count: 300}
+  - {active_authorisations: 40001-50000, limit_count: 350}
+  - {active_authorisations: 50001-60000, limit_count: 400}
+  - {active_authorisations: 60000+, limit_count: 450}
+low_velocity_data_sets:
+  note: >
+    For low-velocity data the recipient is expected to cache; repeated calls to the same
+    resource for the same arrangement beyond the allowable volume MAY be rejected.
+  sets:
+  - data_set: NMI Standing Data
+    operations: [getElectricityServicePointDetail]
+    velocity_time_period: 24 hours
+    allowable_call_volume: 10
+  - data_set: Energy Usage Data
+    operations: [getElectricityServicePointUsage, listElectricityUsageBulk, listElectricityUsageForServicePoints]
+    velocity_time_period: 24 hours
+    allowable_call_volume: 10
+  - data_set: DER Data
+    operations: [getElectricityDERForServicePoint, listElectricityDERBulk, listElectricityDERForSpecificServicePoints]
+    velocity_time_period: 24 hours
+    allowable_call_volume: 10
+pagination_cap:
+  max_page_size: 1000
+  error: 400 urn:au-cds:error:cds-all:Field/InvalidPageSize
+ref: conventions/alinta-energy-conventions.yml

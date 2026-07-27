@@ -1,0 +1,124 @@
+generated: '2026-07-27'
+method: searched
+source: openapi/alinta-energy-cds-energy-api-openapi.yml + openapi/alinta-energy-cds-common-api-openapi.yml (x-scopes extension)
+docs: https://consumerdatastandardsaustralia.github.io/standards/#authorisation-scopes
+note: >
+  Alinta's publicly callable endpoints require NO scope: the CDR discovery pair
+  (/discovery/status, /discovery/outages) and the generic plan data endpoints
+  (/energy/plans, /energy/plans/{planId}) are unauthenticated and carry no x-scopes.
+  The scopes below govern the consumer-data-sharing operations in the shared DSB
+  Consumer Data Standards contract that Alinta implements as a designated energy data
+  holder, and are only obtainable by an ACCC-accredited Data Recipient holding a valid
+  consumer consent. Scope strings are captured verbatim from the specs' per-operation
+  x-scopes extension; descriptions are from the Consumer Data Standards authorisation
+  scopes reference.
+schemes:
+- name: CDR-FAPI-OAuth2
+  profile: FAPI 1.0 Advanced
+  source: https://consumerdatastandardsaustralia.github.io/standards/#security-profile
+  flows:
+  - flow: authorizationCode
+    note: >
+      OIDC Hybrid / authorization code flow with PAR + PKCE. Authorisation and token
+      URLs are disclosed per data holder via the CDR Register data holder brand detail
+      endpoint (accredited access only), so no concrete URLs can be recorded here.
+public_scope:
+  scope: Public
+  scope_id: N/A
+  description: >
+    Openly accessible information; a customer never grants this scope. Applies to the
+    generic plan data and discovery endpoints Alinta (and the AER on Alinta's behalf)
+    serve anonymously.
+scopes:
+- scope: energy:accounts.basic:read
+  description: >
+    Basic information about the customer's energy accounts with the retailer, including
+    simple plan information and the service points that are part of the account. Does not
+    include detailed account information.
+  flows: [authorizationCode]
+  operations: [listEnergyAccounts]
+  sources: [openapi/alinta-energy-cds-energy-api-openapi.yml]
+- scope: energy:accounts.detail:read
+  description: >
+    Detailed energy account information. Additional authorisation on top of the basic
+    energy account scope.
+  flows: [authorizationCode]
+  operations: [getEnergyAccountDetail]
+  sources: [openapi/alinta-energy-cds-energy-api-openapi.yml]
+- scope: energy:accounts.paymentschedule:read
+  description: The agreed payment schedule for the customer's energy accounts.
+  flows: [authorizationCode]
+  operations: [getEnergyAccountPaymentSchedule]
+  sources: [openapi/alinta-energy-cds-energy-api-openapi.yml]
+- scope: energy:accounts.concessions:read
+  description: Concessions and rebates applied to the customer's energy accounts.
+  flows: [authorizationCode]
+  operations: [getEnergyAccountConcessions]
+  sources: [openapi/alinta-energy-cds-energy-api-openapi.yml]
+- scope: energy:billing:read
+  description: >
+    Billing data for the customer's energy accounts — account balances, invoices and
+    billing transactions.
+  flows: [authorizationCode]
+  operations:
+  - getEnergyAccountBalance
+  - listEnergyAccountBalancesBulk
+  - listEnergyAccountBalancesSpecificAccounts
+  - getEnergyAccountInvoices
+  - listEnergyAccountInvoicesBulk
+  - listEnergyInvoicesForSpecificAccounts
+  - getBillingForEnergyAccount
+  - listEnergyAccountBillingBulk
+  - listEnergyAccountBillingForSpecificAccounts
+  sources: [openapi/alinta-energy-cds-energy-api-openapi.yml]
+- scope: energy:electricity.servicepoints.basic:read
+  description: >
+    Basic standing data for the customer's electricity service points, including the
+    National Meter Identifier (NMI). Excludes location and meter attributes.
+  flows: [authorizationCode]
+  operations: [listElectricityServicePoints]
+  sources: [openapi/alinta-energy-cds-energy-api-openapi.yml]
+- scope: energy:electricity.servicepoints.detail:read
+  description: >
+    Detailed service point connection information including meter information. Additional
+    authorisation on top of the basic service point scope. Excludes meter usage data.
+  flows: [authorizationCode]
+  operations: [getElectricityServicePointDetail]
+  sources: [openapi/alinta-energy-cds-energy-api-openapi.yml]
+- scope: energy:electricity.usage:read
+  description: >
+    Electricity usage data for the customer's service points, including basic and
+    interval meter reads.
+  flows: [authorizationCode]
+  operations:
+  - getElectricityServicePointUsage
+  - listElectricityUsageBulk
+  - listElectricityUsageForServicePoints
+  sources: [openapi/alinta-energy-cds-energy-api-openapi.yml]
+- scope: energy:electricity.der:read
+  description: >
+    Distributed energy resource data for the customer's service points, as available in
+    AEMO's DER Register.
+  flows: [authorizationCode]
+  operations:
+  - getElectricityDERForServicePoint
+  - listElectricityDERBulk
+  - listElectricityDERForSpecificServicePoints
+  sources: [openapi/alinta-energy-cds-energy-api-openapi.yml]
+- scope: common:customer.basic:read
+  description: Basic information about the authorised customer (name or organisation, customer type).
+  flows: [authorizationCode]
+  operations: [getCustomer]
+  sources: [openapi/alinta-energy-cds-common-api-openapi.yml]
+- scope: common:customer.detail:read
+  description: >
+    Detailed customer information including contact details (phone numbers, email
+    addresses, physical addresses).
+  flows: [authorizationCode]
+  operations: [getCustomerDetail]
+  sources: [openapi/alinta-energy-cds-common-api-openapi.yml]
+oidc_scopes:
+- scope: openid
+  description: Required OpenID Connect scope for the CDR authorisation flow.
+- scope: profile
+  description: Basic profile information of the authenticated end-user (CDR Profile Scope).

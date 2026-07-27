@@ -1,0 +1,97 @@
+generated: '2026-07-27'
+method: derived
+source: openapi/alinta-energy-cds-energy-api-openapi.yml + openapi/alinta-energy-cds-common-api-openapi.yml
+note: >
+  Entity-relationship graph for Alinta Energy's CDR surface, derived from the DSB
+  Consumer Data Standards schemas ($ref composition and id-reference fields). Only the
+  EnergyPlan branch is anonymously readable (and it is served by the AER, not Alinta);
+  every other entity requires ACCC accreditation plus consumer consent.
+identifiers:
+  planId:
+    schema: EnergyPlanId
+    permanence: Standard-assigned by the retailer; observed live values carry an "@EME" suffix on the AER platform (e.g. ALI1144886SRG2@EME).
+  accountId: {schema: EnergyAccountId, permanence: ID Permanence rules — permanent, non-guessable, consent-scoped}
+  servicePointId: {schema: EnergyServicePointId, permanence: ID Permanence rules; distinct from the National Metering Identifier (NMI)}
+entities:
+- name: EnergyPlan
+  schema: EnergyPlan
+  id: planId
+  access: public (AER-hosted)
+  key_fields: [planId, effectiveFrom, effectiveTo, lastUpdated, displayName, description, type, fuelType, brand, brandName, applicationUri, customerType, geography]
+  enums:
+    type: [STANDING, MARKET, REGULATED]
+    fuelType: [ELECTRICITY, GAS, DUAL]
+- name: EnergyPlanDetail
+  schema: EnergyPlanDetailV3
+  composition: EnergyPlan + plan detail (electricityContract, gasContract, meteringCharges, tariffPeriod, solarFeedInTariff, discounts, incentives, fees, eligibility, greenPowerCharges, controlledLoad)
+  access: public (AER-hosted)
+- name: EnergyAccount
+  schema: EnergyAccountV2
+  composition: EnergyAccountBaseV2 + account summary (plans)
+  id: accountId
+  access: gated (energy:accounts.basic:read)
+  key_fields: [accountId, accountNumber, displayName, openStatus, creationDate]
+- name: EnergyAccountDetail
+  schema: EnergyAccountDetailV4
+  composition: EnergyAccountBaseV2 + detail (plan detail, authorised contacts, service points)
+  access: gated (energy:accounts.detail:read)
+- name: EnergyServicePoint
+  schema: EnergyServicePointV2
+  id: servicePointId
+  access: gated (energy:electricity.servicepoints.basic:read)
+  key_fields: [servicePointId, nationalMeteringId, servicePointClassification, servicePointStatus, jurisdictionCode, isGenerator, validFromDate, lastUpdateDateTime, lastConsumerChangeDate, consumerProfile]
+- name: EnergyServicePointDetail
+  schema: EnergyServicePointDetailV2
+  composition: EnergyServicePointV2 + detail (distributionLossFactor, relatedParticipants, location, meters)
+  access: gated (energy:electricity.servicepoints.detail:read)
+- name: EnergyUsageRead
+  schema: EnergyUsageRead
+  access: gated (energy:electricity.usage:read)
+  key_fields: [servicePointId, registerId, registerSuffix, meterId, controlledLoad, readStartDate, readEndDate, unitOfMeasure, readUType, basicRead, intervalRead]
+- name: EnergyDerRecord
+  schema: EnergyDerRecord
+  access: gated (energy:electricity.der:read)
+  key_fields: [servicePointId, approvedCapacity, availablePhasesCount, installedPhasesCount, islandableInstallation, hasCentralProtectionControl, protectionMode, acConnections]
+- name: EnergyInvoice
+  schema: EnergyInvoice
+  access: gated (energy:billing:read)
+  key_fields: [accountId, invoiceNumber, issueDate, dueDate, period, invoiceAmount, gstAmount, payOnTimeDiscount, balanceAtIssue, servicePoints, gas, electricity, accountCharges, paymentStatus]
+- name: EnergyBillingTransaction
+  schema: EnergyBillingTransactionV3
+  access: gated (energy:billing:read)
+  key_fields: [accountId, executionDateTime, gst, transactionUType, usage, demand, onceOff, otherCharges, payment]
+- name: EnergyBalance
+  schema: EnergyBalanceResponse
+  access: gated (energy:billing:read)
+- name: EnergyPaymentSchedule
+  schema: EnergyPaymentSchedule
+  access: gated (energy:accounts.paymentschedule:read)
+  key_fields: [amount, paymentScheduleUType, cardDebit, directDebit, digitalWallet, manualPayment]
+- name: EnergyConcession
+  schema: EnergyConcession
+  access: gated (energy:accounts.concessions:read)
+  key_fields: [type, displayName, startDate, endDate, discountFrequency, amount, percentage, appliedTo]
+- name: CommonCustomer
+  schema: ResponseCommonCustomer
+  source: openapi/alinta-energy-cds-common-api-openapi.yml
+  access: gated (common:customer.basic:read)
+  variants: [CommonPerson, CommonOrganisation]
+- name: DiscoveryOutage
+  schema: DiscoveryOutage
+  source: openapi/alinta-energy-cds-common-api-openapi.yml
+  access: public (Alinta-hosted)
+  key_fields: [outageTime, duration, isPartial, explanation]
+relationships:
+- {from: EnergyPlanDetail, to: EnergyPlan, type: belongs_to, via: allOf composition}
+- {from: EnergyAccountDetail, to: EnergyPlanDetail, type: has_many, via: 'plans[].planOverview'}
+- {from: EnergyAccountDetail, to: EnergyServicePoint, type: has_many, via: 'plans[].servicePointIds'}
+- {from: EnergyAccount, to: EnergyServicePoint, type: has_many, via: 'plans[].servicePointIds'}
+- {from: EnergyUsageRead, to: EnergyServicePoint, type: belongs_to, via: servicePointId}
+- {from: EnergyDerRecord, to: EnergyServicePoint, type: belongs_to, via: servicePointId}
+- {from: EnergyInvoice, to: EnergyAccount, type: belongs_to, via: accountId}
+- {from: EnergyInvoice, to: EnergyServicePoint, type: has_many, via: 'servicePoints[]'}
+- {from: EnergyBillingTransaction, to: EnergyAccount, type: belongs_to, via: accountId}
+- {from: EnergyBalance, to: EnergyAccount, type: belongs_to, via: accountId}
+- {from: EnergyPaymentSchedule, to: EnergyAccount, type: belongs_to, via: accountId path parameter}
+- {from: EnergyConcession, to: EnergyAccount, type: belongs_to, via: accountId path parameter}
+- {from: CommonCustomer, to: EnergyAccount, type: has_many, via: consent-scoped session}

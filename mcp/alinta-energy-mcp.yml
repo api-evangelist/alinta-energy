@@ -1,0 +1,48 @@
+generated: '2026-07-27'
+method: derived
+status: candidate
+source: openapi/alinta-energy-cds-common-api-openapi.yml + openapi/alinta-energy-cds-energy-api-openapi.yml
+note: >
+  No official Alinta Energy MCP server exists — none is published by Alinta, by the
+  Australian Energy Regulator or by the Data Standards Body, and no MCP registry entry
+  was found. This is a DERIVED candidate tool list covering ONLY the anonymously
+  callable CDR surface: the two discovery operations Alinta serves on its own base URI,
+  and the two generic plan data operations the AER serves on Alinta's behalf. All four
+  need no credentials — just the mandatory x-v header. The 23 consented operations
+  (accounts, balances, invoices, billing, payment schedule, concessions, service points,
+  usage, DER, customer) are deliberately excluded: they require ACCC accreditation, a
+  client certificate and a live consumer consent, so they cannot be modelled as an
+  anonymous agent tool.
+server:
+  name: alinta-energy-cdr
+  transport: http
+  url: null
+hosts:
+  alinta: https://public.cdr.alintaenergy.com.au/cds-au/v1
+  aer_plan_data: https://cdr.energymadeeasy.gov.au/alinta/cds-au/v1
+tools:
+- name: get_status
+  description: Get Alinta Energy's CDR data holder operational status (health check).
+  source_operation: openapi/alinta-energy-cds-common-api-openapi.yml#getStatus
+  request: 'GET https://public.cdr.alintaenergy.com.au/cds-au/v1/discovery/status (header x-v: 1)'
+  auth: none
+- name: get_outages
+  description: List Alinta Energy's scheduled or current CDR outages.
+  source_operation: openapi/alinta-energy-cds-common-api-openapi.yml#getOutages
+  request: 'GET https://public.cdr.alintaenergy.com.au/cds-au/v1/discovery/outages (header x-v: 1)'
+  auth: none
+- name: list_energy_plans
+  description: List Alinta Energy electricity and gas plans currently offered to the market (493 records as at 2026-07-27; filter by type, fuelType, effective, updated-since; paginated).
+  source_operation: openapi/alinta-energy-cds-energy-api-openapi.yml#listEnergyPlans
+  request: 'GET https://cdr.energymadeeasy.gov.au/alinta/cds-au/v1/energy/plans (header x-v: 1)'
+  auth: none
+  note: Served by the Australian Energy Regulator's Energy Made Easy CDR platform, not by Alinta. Alinta's own host returns 404 for this path.
+- name: get_energy_plan_detail
+  description: Get full contract detail for one Alinta plan by planId (tariffs, discounts, fees, solar feed-in, eligibility, geography).
+  source_operation: openapi/alinta-energy-cds-energy-api-openapi.yml#getEnergyPlanDetail
+  request: 'GET https://cdr.energymadeeasy.gov.au/alinta/cds-au/v1/energy/plans/{planId} (header x-v: 3)'
+  auth: none
+excluded_operations:
+  reason: Require ACCC accreditation (Accredited Data Recipient), CDR Register client certificate and an explicit consumer consent.
+  count: 23
+  ref: scopes/alinta-energy-scopes.yml

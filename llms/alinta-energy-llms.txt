@@ -1,0 +1,65 @@
+# Alinta Energy
+
+> Alinta Energy is one of Australia's largest integrated energy retailers and generators (roughly 3,000 MW across gas, coal, wind, solar and battery; more than a million retail customers; owned by Chow Tai Fook Enterprises), and a designated, live Consumer Data Right (CDR) energy data holder. Its API posture is mandate-implemented but developer-closed: four operations are anonymously callable and everything of substance sits behind ACCC accreditation and consumer consent. There is no developer portal, no self-serve API, no proprietary OpenAPI, no SDK and no open grid or market data.
+
+## What you can actually call anonymously
+
+- Alinta-hosted CDR discovery: `GET https://public.cdr.alintaenergy.com.au/cds-au/v1/discovery/status` (header `x-v: 1`) — confirmed HTTP 200, 2026-07-27
+- Alinta-hosted CDR outages: `GET https://public.cdr.alintaenergy.com.au/cds-au/v1/discovery/outages` (header `x-v: 1`) — confirmed HTTP 200
+- AER-hosted plan catalogue: `GET https://cdr.energymadeeasy.gov.au/alinta/cds-au/v1/energy/plans` (header `x-v: 1`) — confirmed HTTP 200, 493 Alinta plans
+- AER-hosted plan detail: `GET https://cdr.energymadeeasy.gov.au/alinta/cds-au/v1/energy/plans/{planId}` (header `x-v: 3`)
+
+The plan catalogue is served by the Australian Energy Regulator's Energy Made Easy CDR platform on Alinta's behalf — Alinta's own host returns 404 for that path. This is the CDR energy architecture, not an Alinta defect.
+
+## APIs
+
+- [Alinta Energy CDR Discovery API](https://consumerdatastandardsaustralia.github.io/standards/#discovery-apis): Status + outages. Base `https://public.cdr.alintaenergy.com.au/cds-au/v1`
+- [Alinta Energy CDR Generic Plan Data API](https://www.energymadeeasy.gov.au/): 493 electricity and gas plans. Base `https://cdr.energymadeeasy.gov.au/alinta/cds-au/v1`
+- [Alinta Energy CDR Energy API](https://www.alintaenergy.com.au/help-and-support/terms-and-conditions/consumer-data-right-cdr): Accounts, balances, invoices, billing, payment schedules, concessions, service points, usage, DER. Accredited data recipients only; base URI not published.
+
+## Specs
+
+- [OpenAPI — CDR Energy API 1.36.0](https://raw.githubusercontent.com/api-evangelist/alinta-energy/refs/heads/main/openapi/alinta-energy-cds-energy-api-openapi.yml)
+- [OpenAPI — CDR Common API 1.36.0](https://raw.githubusercontent.com/api-evangelist/alinta-energy/refs/heads/main/openapi/alinta-energy-cds-common-api-openapi.yml)
+- [Overlay — Energy API](https://raw.githubusercontent.com/api-evangelist/alinta-energy/refs/heads/main/overlays/alinta-energy-cds-energy-api-overlay.yaml)
+- [Overlay — Common API](https://raw.githubusercontent.com/api-evangelist/alinta-energy/refs/heads/main/overlays/alinta-energy-cds-common-api-overlay.yaml)
+
+Both contracts are the shared Treasury Data Standards Body Consumer Data Standards documents that Alinta implements — not Alinta-authored specs.
+
+## Artifacts
+
+- [Authentication profile](https://raw.githubusercontent.com/api-evangelist/alinta-energy/refs/heads/main/authentication/alinta-energy-authentication.yml)
+- [OAuth scopes (CDR energy + common)](https://raw.githubusercontent.com/api-evangelist/alinta-energy/refs/heads/main/scopes/alinta-energy-scopes.yml)
+- [API conventions](https://raw.githubusercontent.com/api-evangelist/alinta-energy/refs/heads/main/conventions/alinta-energy-conventions.yml)
+- [Error catalog](https://raw.githubusercontent.com/api-evangelist/alinta-energy/refs/heads/main/errors/alinta-energy-problem-types.yml)
+- [Lifecycle, status endpoints + SLA](https://raw.githubusercontent.com/api-evangelist/alinta-energy/refs/heads/main/lifecycle/alinta-energy-lifecycle.yml)
+- [Rate limits (CDR traffic thresholds)](https://raw.githubusercontent.com/api-evangelist/alinta-energy/refs/heads/main/rate-limits/alinta-energy-rate-limits.yml)
+- [Changelog (Consumer Data Standards)](https://raw.githubusercontent.com/api-evangelist/alinta-energy/refs/heads/main/changelog/alinta-energy-changelog.yml)
+- [Conformance](https://raw.githubusercontent.com/api-evangelist/alinta-energy/refs/heads/main/conformance/alinta-energy-conformance.yml)
+- [Data model](https://raw.githubusercontent.com/api-evangelist/alinta-energy/refs/heads/main/data-model/alinta-energy-data-model.yml)
+- [MCP candidate tool list](https://raw.githubusercontent.com/api-evangelist/alinta-energy/refs/heads/main/mcp/alinta-energy-mcp.yml)
+- [Agentic access profile](https://raw.githubusercontent.com/api-evangelist/alinta-energy/refs/heads/main/agentic-access/alinta-energy-agentic-access.yml)
+- [Domain security probe](https://raw.githubusercontent.com/api-evangelist/alinta-energy/refs/heads/main/security/alinta-energy-domain-security.yml)
+- [Well-known probe results](https://raw.githubusercontent.com/api-evangelist/alinta-energy/refs/heads/main/well-known/alinta-energy-well-known.yml)
+- [Packages (none published)](https://raw.githubusercontent.com/api-evangelist/alinta-energy/refs/heads/main/packages/alinta-energy-packages.yml)
+
+## Agent skills
+
+- [Retrieve Alinta Energy plan catalogue](https://raw.githubusercontent.com/api-evangelist/alinta-energy/refs/heads/main/skills/alinta-energy-plan-catalogue.md)
+- [Check Alinta Energy CDR availability and outages](https://raw.githubusercontent.com/api-evangelist/alinta-energy/refs/heads/main/skills/alinta-energy-cdr-availability.md)
+
+## Docs
+
+- [Consumer Data Standards (the contract Alinta implements)](https://consumerdatastandardsaustralia.github.io/standards/)
+- [Alinta Energy Consumer Data Right page](https://www.alintaenergy.com.au/help-and-support/terms-and-conditions/consumer-data-right-cdr)
+- [Alinta Energy CDR policy](https://www.alintaenergy.com.au/help-and-support/terms-and-conditions/consumer-data-right-cdr/consumer-data-right-policy)
+- [CDR Register — energy data holder brands](https://api.cdr.gov.au/cdr-register/v1/energy/data-holders/brands/summary)
+- [Consumer Data Right regulator](https://www.cdr.gov.au/)
+- [Energy Made Easy (AER)](https://www.energymadeeasy.gov.au/)
+
+## Notes for agents
+
+- Send `x-v` on every call; it is mandatory and unversioned requests fail with 400/406.
+- Errors are CDR error lists (`urn:au-cds:error:*`), not RFC 9457 problem+json.
+- No idempotency contract, no webhooks, no AsyncAPI, no sandbox, no CLI, no SDK, no MCP server.
+- Alinta's corporate site (`www.alintaenergy.com.au`) returns HTTP 403 to all automated clients; a 403 there is a WAF, not evidence of a resource.

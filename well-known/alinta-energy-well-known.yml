@@ -1,0 +1,46 @@
+generated: '2026-07-27'
+method: searched
+source: live probes of every Alinta Energy and CDR host on 2026-07-27
+note: >
+  The standard /.well-known/ discovery surface was probed on every host in apis.yml
+  (Alinta's own CDR public base URI, the AER-hosted Energy Made Easy CDR host that
+  serves Alinta's generic plan data, and the Alinta corporate web estate). Nothing is
+  published. Alinta's own CDR host answers 404 for every /.well-known/ path, and the
+  corporate site answers 403 to all automated clients (site-wide WAF), so a 403 is NOT
+  evidence that a document exists. No anonymous OpenID Connect discovery document is
+  served: under the Consumer Data Standards a data holder's infosec base URI (and
+  therefore its /.well-known/openid-configuration) is disclosed only through the CDR
+  Register's authenticated data holder brand DETAIL endpoint, which requires an
+  ACCC-accredited client certificate.
+  In place of /.well-known/, the machine-readable operational discovery surface Alinta
+  DOES serve is the CDR Common Discovery pair — /cds-au/v1/discovery/status and
+  /cds-au/v1/discovery/outages — both confirmed HTTP 200 (see
+  lifecycle/alinta-energy-lifecycle.yml).
+hosts:
+- host: https://public.cdr.alintaenergy.com.au
+  role: Alinta-operated CDR public base URI (from the CDR Register)
+  documents:
+  - {path: /.well-known/security.txt, status: 404}
+  - {path: /.well-known/openid-configuration, status: 404}
+  - {path: /.well-known/oauth-authorization-server, status: 404}
+  - {path: /.well-known/api-catalog, status: 404}
+  - {path: /.well-known/ai-plugin.json, status: 404}
+- host: https://cdr.energymadeeasy.gov.au
+  role: AER Energy Made Easy CDR platform (hosts Alinta's generic plan data)
+  documents:
+  - {path: /.well-known/security.txt, status: 404}
+  - {path: /.well-known/openid-configuration, status: 404}
+  - {path: /.well-known/oauth-authorization-server, status: 404}
+  - {path: /.well-known/api-catalog, status: 404}
+- host: https://www.energymadeeasy.gov.au
+  role: AER Energy Made Easy consumer site
+  documents:
+  - {path: /.well-known/security.txt, status: 404}
+- host: https://www.alintaenergy.com.au
+  role: Alinta corporate site (site-wide WAF returns 403 to automated clients)
+  documents:
+  - {path: /.well-known/security.txt, status: 403}
+  - {path: /.well-known/openid-configuration, status: 403}
+  - {path: /llms.txt, status: 403}
+security_txt: none
+openid_configuration: none (gated behind CDR Register accreditation)

@@ -1,0 +1,84 @@
+generated: '2026-07-27'
+method: searched
+source: https://consumerdatastandardsaustralia.github.io/standards/
+docs: https://consumerdatastandardsaustralia.github.io/standards/#versioning
+note: >
+  Alinta Energy publishes no versioning, deprecation or SLA document of its own. Its
+  lifecycle obligations are set entirely by the Consumer Data Standards and the CDR
+  rules, which bind it as a designated energy data holder. The one lifecycle surface
+  Alinta genuinely operates is the CDR Common Discovery pair — a live, public,
+  machine-readable status and planned-outage feed on its own infrastructure.
+versioning:
+  scheme: header-per-endpoint (x-v / x-min-v)
+  standards_version: 1.36.0
+  current_endpoint_versions:
+    listEnergyPlans: '1'
+    getEnergyPlanDetail: '3'
+    listElectricityServicePoints: '2'
+    getElectricityServicePointDetail: '2'
+    listEnergyAccounts: '2'
+    getEnergyAccountDetail: '4'
+    getBillingForEnergyAccount: '3'
+    getStatus: '1'
+    getOutages: '1'
+    getCustomerDetail: '2'
+  negotiation: Client sends x-v (mandatory); an unsupported version returns HTTP 406.
+  confirmed_live: 'x-v 1 on /discovery/status and /discovery/outages; x-v 3 on /energy/plans/{planId}.'
+  docs: https://consumerdatastandardsaustralia.github.io/standards/#endpoint-versioning
+deprecation:
+  policy: >
+    Endpoint versions are superseded and retired through the Consumer Data Standards
+    Future Dated Obligation (FDO) process: each change names a date by which data holders
+    MUST implement the new endpoint version and a later date from which they MAY retire
+    the prior version. Obsolete versions stay published in the standard for reference.
+  examples_binding_alinta:
+  - endpoint: Get Generic Plan Detail
+    obligation: Data holders MUST implement v3 by 11 November 2024; MAY retire v2 from 3 March 2025.
+  - endpoint: Get Energy Account Detail
+    obligation: Data holders MUST implement v4 by 11 November 2024; MAY retire v3 from 3 March 2025.
+  - endpoint: Transaction Security Ciphers
+    obligation: Data holders and recipients MUST only support BCP195-recommended ciphers by 17 March 2025.
+  obsolete_versions_documented: true
+  policy_url: https://consumerdatastandardsaustralia.github.io/standards/#versioning
+  obligation_schedule: https://consumerdatastandardsaustralia.github.io/standards/#future-dated-obligations
+  sunset_header: false
+  note: RFC 8594 Sunset/Deprecation headers are not used; retirement is scheduled by dated obligation, not by header.
+status:
+  status_endpoints:
+  - url: https://public.cdr.alintaenergy.com.au/cds-au/v1/discovery/status
+    brand: Alinta Energy
+    operation: getStatus
+    confirmed: 'HTTP 200 on 2026-07-27 — {"data":{"status":"OK","updateTime":"2026-07-27T20:26:07Z","explanation":"All services operational"}}'
+  - url: https://public.cdr.lumoenergy.com.au/cds-au/v1/discovery/status
+    brand: Lumo Energy (Alinta''s second retail brand, separately registered data holder)
+    operation: getStatus
+    confirmed: HTTP 200
+  outage_endpoints:
+  - url: https://public.cdr.alintaenergy.com.au/cds-au/v1/discovery/outages
+    brand: Alinta Energy
+    operation: getOutages
+    confirmed: 'HTTP 200 on 2026-07-27 — {"data":{"outages":[]}}'
+  human_status_page: none
+  note: >
+    These are machine-readable status endpoints, not an HTML status page. They are the
+    only operational-transparency surface Alinta publishes, and they are mandated rather
+    than voluntary.
+sla:
+  availability_target: 99.5% per month
+  availability_scope: All CDR endpoints, authenticated and unauthenticated; excludes planned outages.
+  planned_outage_notice: At least one week's lead time for normal outages, published to Data Recipient Software Products; critical security fixes may occur without notice.
+  performance:
+    rule: 95% of calls per hour within the nominated response-time threshold.
+    thresholds:
+      unauthenticated: 1500ms
+      high_priority: 1000ms (includes Get Status, Get Outages, Get Energy Accounts, Get Energy Account Detail, Get Balance For Energy Account, Get Invoices For Account, Get Customer, Get Customer Detail)
+      low_priority: 1500ms
+      unattended: 4000ms
+      large_payload: 6000ms (Get Bulk Billing, Get Billing For Specific Accounts)
+      secondary_request: 1000ms (data holders) / 1500ms (secondary data holders)
+      large_secondary_request: 1500ms (data holders) / 4500ms (secondary data holders)
+  source: https://consumerdatastandardsaustralia.github.io/standards/#non-functional-requirements
+  note: Enforced by the ACCC under the CDR rules; there is no Alinta-authored SLA document.
+reporting:
+  mechanism: CDR Get Metrics admin endpoint (data holder reporting to the regulator, not publicly readable).
+deprecated_operations: []

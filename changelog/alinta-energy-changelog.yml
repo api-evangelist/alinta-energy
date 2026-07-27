@@ -1,0 +1,62 @@
+generated: '2026-07-27'
+method: searched
+source: https://consumerdatastandardsaustralia.github.io/standards/#changelog-and-archives
+provenance: data-standards-body (not provider-authored)
+note: >
+  Alinta Energy publishes no API changelog or release notes of its own. The contract it
+  implements is versioned by the Treasury Data Standards Body, and that changelog is the
+  only dated record of change for Alinta's CDR surface. Entries are captured verbatim
+  from the Consumer Data Standards changelog (reverse date order, most recent first);
+  dates are DD/MM/YYYY as published. Endpoint-level version changes reach Alinta through
+  the Future Dated Obligation process recorded in lifecycle/alinta-energy-lifecycle.yml.
+scheme: semver-ish (major.minor.patch) for the standards document; independent integer versions per endpoint (x-v)
+current_version: 1.36.0
+current_version_date: '2025-12-04'
+entries:
+- version: 1.36.0
+  date: '2025-12-04'
+  breaking: false
+  highlights: Changes from Decision 376 (white label brand arrangements).
+- version: 1.35.1
+  date: '2025-10-08'
+  breaking: false
+  highlights: Changes from Decision 377 (amendments to the certificate management section).
+- version: 1.35.0
+  date: '2025-07-29'
+  breaking: false
+  highlights: >
+    Decision 364 (Maintenance Iteration 22), Decision 367 (March 2025 Rules amendment
+    including non-bank lending and BNPL), Decision 369 (Redirect to App), Decision 370
+    (amendment of the Decision 338 obligation date).
+- version: 1.34.1
+  date: '2025-04-11'
+  breaking: false
+  highlights: Update to the candidate standards for the banking and non-bank lending sector.
+- version: 1.34.0
+  date: '2025-03-13'
+  breaking: false
+  highlights: Decision 338 (updates to banking products and accounts) and Decision 361 (Energy Last Consumer Change Date).
+- version: 1.33.1
+  date: '2025-03-06'
+  breaking: false
+  highlights: Changes from OpenAPI specification refactoring.
+- version: 1.33.0
+  date: '2024-12-18'
+  breaking: false
+  highlights: Decision 356 (Maintenance Iteration 21) and Decision 350 (August 2024 Rules standards impacts).
+- version: 1.32.0
+  date: '2024-10-21'
+  breaking: false
+  highlights: Maintenance Iteration 20. Included a description change to the Get Generic Plan Detail dailySupplyChargeType field without a new endpoint version.
+- version: 1.31.0
+  date: '2024-07-03'
+  breaking: false
+  highlights: Maintenance Iteration 19.
+- version: 1.30.0
+  date: '2024-04-24'
+  breaking: true
+  highlights: >
+    Maintenance Iteration 18. Added dailySupplyChargeType in Get Generic Plan Detail v3
+    and introduced Get Energy Account Detail v4 — both mandatory for data holders by
+    11 November 2024, with the prior versions retirable from 3 March 2025.
+release_notes_index: https://consumerdatastandardsaustralia.github.io/standards/#changelog-and-archives

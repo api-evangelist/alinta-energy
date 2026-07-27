@@ -1,0 +1,32 @@
+generated: '2026-07-27'
+method: searched
+source: npm, PyPI, RubyGems, GitHub (AlintaEnergy org) probed 2026-07-27
+note: >
+  Alinta Energy ships NO client libraries or SDKs. There is nothing to ship: the only
+  anonymously callable surface is four GET endpoints behind an x-v header, and every
+  other operation is reachable solely by ACCC-accredited data recipients, who build
+  against the shared Consumer Data Standards contract rather than a retailer-specific
+  SDK. Registries were searched for first-party packages and none were found. No SDKs
+  pointer is emitted.
+packages: []
+candidates:
+- language: javascript
+  registry: npm
+  name: alinta-kit
+  url: https://www.npmjs.com/package/alinta-kit
+  description: 'Alinta Energy shared assets.'
+  official: false
+  official_evidence: >
+    Published by a single individual maintainer with a personal email address, no
+    repository, no homepage, one version (0.1.5), created 2017-12-12 and untouched since
+    2022. It is a front-end asset bundle, not an API client. Cannot be confirmed as
+    first-party; recorded as a candidate only.
+registries_searched:
+- {registry: npm, query: alinta, result: 1 match (alinta-kit), first_party: unconfirmed}
+- {registry: pypi, query: alinta, result: 404}
+- {registry: rubygems, query: alinta, result: 404}
+- {registry: github, org: AlintaEnergy, result: '5 public repos — sitecore-docker-images, Sitecore-Azure-Quickstart-Templates, UrlRewrite, Frontend.Test.CustomerList, Angular-code-test. Sitecore CMS tooling and frontend hiring tests only; no API client, no spec, no SDK.'}
+third_party_note: >
+  Developers integrating with CDR energy data holders generally use the Data Standards
+  Body's own reference artefacts and third-party CDR platforms (accredited intermediaries),
+  none of which are Alinta-authored and none of which are catalogued here as Alinta packages.

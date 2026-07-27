@@ -1,0 +1,148 @@
+generated: '2026-07-27'
+method: derived
+source: openapi/alinta-energy-cds-energy-api-openapi.yml + openapi/alinta-energy-cds-common-api-openapi.yml
+enriched_from: https://consumerdatastandardsaustralia.github.io/standards/#error-codes
+format: cdr-error-list
+envelope:
+  schema: ResponseErrorListV2
+  media_type: application/json
+  shape: '{ "errors": [ { "code", "title", "detail", "meta" } ] }'
+note: >
+  Alinta's CDR surface uses the Consumer Data Standards error format — a list of ErrorV2
+  objects carrying urn:au-cds:error:* codes — NOT RFC 9457 application/problem+json.
+  Status codes are derived from the 4xx responses declared on the operations in the two
+  harvested contracts; codes, titles and remediation text are the CDS standard error
+  registry those responses reference.
+problems:
+- status: 400
+  urn: urn:au-cds:error:cds-all:Field/Invalid
+  title: Invalid Field
+  detail: A URL or body parameter is the wrong type or violates the field's constraints. The error detail should name the field.
+  source_operations: [listEnergyPlans, getEnergyPlanDetail, getStatus, getOutages, listElectricityServicePoints, listEnergyAccounts]
+- status: 400
+  urn: urn:au-cds:error:cds-all:Field/Missing
+  title: Missing Required Field
+  detail: A mandatory query parameter or payload field is absent. The error detail should name the field.
+  source_operations: [listEnergyPlans, getEnergyPlanDetail, getStatus, getOutages]
+- status: 400
+  urn: urn:au-cds:error:cds-all:Field/InvalidDateTime
+  title: Invalid Date
+  detail: A DateTimeString/DateString/TimeString field carries an invalid or out-of-range date (e.g. updated-since, oldest-date, newest-date).
+  source_operations: [listEnergyPlans, getElectricityServicePointUsage, listElectricityUsageBulk, getEnergyAccountInvoices]
+- status: 400
+  urn: urn:au-cds:error:cds-all:Field/InvalidPageSize
+  title: Invalid Page Size
+  detail: page-size exceeds the CDR maximum of 1000 records.
+  source_operations: [listEnergyPlans, listElectricityServicePoints, listEnergyAccounts]
+- status: 400
+  urn: urn:au-cds:error:cds-all:Header/InvalidVersion
+  title: Invalid Version
+  detail: x-v or x-min-v is not a positive integer.
+  source_operations: [listEnergyPlans, getEnergyPlanDetail, getStatus, getOutages]
+- status: 400
+  urn: urn:au-cds:error:cds-all:Header/Missing
+  title: Missing Required Header
+  detail: A required HTTP header (x-v) was not supplied.
+  source_operations: [listEnergyPlans, getEnergyPlanDetail, getStatus, getOutages]
+- status: 400
+  urn: urn:au-cds:error:cds-all:Header/Invalid
+  title: Invalid Header
+  detail: A supplied HTTP header value is the wrong type or violates the CDR field constraints.
+  source_operations: [listEnergyPlans, getStatus]
+- status: 403
+  urn: urn:au-cds:error:cds-all:Authorisation/AdrStatusNotActive
+  title: ADR Status Is Not Active
+  detail: The Accredited Data Recipient or its software product is not active in the CDR Register.
+  source_operations: [listEnergyAccounts, getCustomer]
+  applies_to: authenticated (accredited) operations only
+- status: 403
+  urn: urn:au-cds:error:cds-all:Authorisation/RevokedConsent
+  title: Consent Is Revoked
+  detail: The consumer's consent has been revoked or expired; the resource will not be provided.
+  source_operations: [listEnergyAccounts, getEnergyAccountDetail, getCustomer]
+  applies_to: authenticated (accredited) operations only
+- status: 403
+  urn: urn:au-cds:error:cds-all:Authorisation/InvalidConsent
+  title: Consent Is Invalid
+  detail: The consent is not associated with the requested resource or is insufficient to execute it.
+  source_operations: [listEnergyAccounts, getEnergyAccountDetail]
+  applies_to: authenticated (accredited) operations only
+- status: 404
+  urn: urn:au-cds:error:cds-all:Resource/Invalid
+  title: Invalid Resource
+  detail: The requested resource identifier in the URI is permanently unavailable (e.g. an unknown planId).
+  source_operations: [getEnergyPlanDetail, getElectricityServicePointDetail]
+- status: 404
+  urn: urn:au-cds:error:cds-all:Resource/Unavailable
+  title: Unavailable Resource
+  detail: The requested resource identifier in the URI is temporarily unavailable; a later request may succeed.
+  source_operations: [getEnergyPlanDetail, getElectricityServicePointDetail]
+- status: 404
+  urn: urn:au-cds:error:cds-all:Resource/NotImplemented
+  title: Resource Not Implemented
+  detail: >
+    A valid CDR endpoint that this data holder does not implement or serve at this base
+    URI. Alinta's own public base URI answers 404 for every path other than
+    /discovery/status and /discovery/outages.
+  source_operations: [listEnergyPlans]
+- status: 404
+  urn: urn:au-cds:error:cds-energy:Authorisation/InvalidEnergyAccount
+  title: Invalid Energy Account
+  detail: The energy account identified in the URI is permanently unavailable.
+  source_operations: [getEnergyAccountDetail, getEnergyAccountBalance, getEnergyAccountInvoices, getBillingForEnergyAccount, getEnergyAccountPaymentSchedule, getEnergyAccountConcessions]
+  applies_to: authenticated (accredited) operations only
+- status: 404
+  urn: urn:au-cds:error:cds-energy:Authorisation/UnavailableEnergyAccount
+  title: Unavailable Energy Account
+  detail: The energy account identified in the URI is temporarily unavailable.
+  source_operations: [getEnergyAccountDetail, getEnergyAccountBalance, getEnergyAccountInvoices]
+  applies_to: authenticated (accredited) operations only
+- status: 404
+  urn: urn:au-cds:error:cds-energy:Authorisation/InvalidServicePoint
+  title: Invalid Service Point
+  detail: The service point identified in the URI is permanently unavailable.
+  source_operations: [getElectricityServicePointDetail, getElectricityServicePointUsage, getElectricityDERForServicePoint]
+  applies_to: authenticated (accredited) operations only
+- status: 404
+  urn: urn:au-cds:error:cds-energy:Authorisation/UnavailableServicePoint
+  title: Unavailable Service Point
+  detail: The service point identified in the URI is temporarily unavailable.
+  source_operations: [getElectricityServicePointDetail, getElectricityServicePointUsage, getElectricityDERForServicePoint]
+  applies_to: authenticated (accredited) operations only
+- status: 406
+  urn: urn:au-cds:error:cds-all:Header/UnsupportedVersion
+  title: Unsupported Version
+  detail: The requested endpoint version (x-v / x-min-v range) is not supported by the data holder.
+  source_operations: [listEnergyPlans, getEnergyPlanDetail, getStatus, getOutages, listElectricityServicePoints, listEnergyAccounts]
+- status: 422
+  urn: urn:au-cds:error:cds-all:Field/InvalidPage
+  title: Invalid Page
+  detail: The requested page is out of range for the result set. The detail should carry the maximum available page.
+  source_operations: [listEnergyPlans, listElectricityServicePoints, listEnergyAccounts, listEnergyAccountInvoicesBulk]
+- status: 422
+  urn: urn:au-cds:error:cds-energy:Authorisation/InvalidEnergyAccount
+  title: Invalid Energy Account (request body)
+  detail: An account identifier supplied in a POST request body is permanently unavailable.
+  source_operations: [listEnergyAccountBalancesSpecificAccounts, listEnergyInvoicesForSpecificAccounts, listEnergyAccountBillingForSpecificAccounts]
+  applies_to: authenticated (accredited) operations only
+- status: 422
+  urn: urn:au-cds:error:cds-energy:Authorisation/InvalidServicePoint
+  title: Invalid Service Point (request body)
+  detail: A service point identifier supplied in a POST request body is permanently unavailable.
+  source_operations: [listElectricityUsageForServicePoints, listElectricityDERForSpecificServicePoints]
+  applies_to: authenticated (accredited) operations only
+- status: '4xx'
+  urn: urn:au-cds:error:cds-all:GeneralError/Expected
+  title: Expected Error Encountered
+  detail: An expected error not covered by a more specific code.
+  source_operations: []
+- status: 503
+  urn: urn:au-cds:error:cds-all:Service/Unavailable
+  title: Service Unavailable
+  detail: The API is unavailable due to a scheduled or unexpected outage. Check /discovery/outages and /discovery/status.
+  source_operations: []
+- status: '5xx'
+  urn: urn:au-cds:error:cds-all:GeneralError/Unexpected
+  title: Unexpected Error Encountered
+  detail: An unexpected server error; the detail must not reveal sensitive information.
+  source_operations: []

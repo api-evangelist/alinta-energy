@@ -1,0 +1,43 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for Alinta Energy CDR Energy API
+  version: 1.0.0
+extends: openapi/alinta-energy-cds-energy-api-openapi.yml
+actions:
+- target: $.info
+  update:
+    x-apievangelist-provider: Alinta Energy
+    x-apievangelist-spec-provenance: >
+      This is the shared Treasury Data Standards Body Consumer Data Standards contract
+      (CDR Energy API 1.36.0), not an Alinta-authored document. It is the contract Alinta
+      implements as a designated CDR energy data holder (brand ID
+      8bd0fd93-9d26-ee11-a83d-000d3a8830d6, ABN 22149658300).
+    x-apievangelist-public-operations: [listEnergyPlans, getEnergyPlanDetail]
+    x-apievangelist-public-note: >
+      Only the two generic plan data operations are anonymously callable, and they are
+      served by the Australian Energy Regulator's Energy Made Easy CDR platform on
+      Alinta's behalf — NOT by Alinta. Alinta's own base URI returns HTTP 404 for
+      /energy/plans. The remaining 21 operations require ACCC accreditation, a CDR
+      Register client certificate and an explicit consumer consent; their mTLS host is
+      published only through the CDR Register's authenticated brand detail endpoint.
+    x-apievangelist-verified: '2026-07-27'
+- target: $.servers
+  update:
+  - description: AER Energy Made Easy CDR platform serving Alinta generic plan data (public, confirmed HTTP 200, 493 plans)
+    url: https://cdr.energymadeeasy.gov.au/alinta/cds-au/v1
+  - description: Alinta-operated CDR public base URI (discovery endpoints only; /energy/* returns 404)
+    url: https://public.cdr.alintaenergy.com.au/cds-au/v1
+- target: $.paths['/energy/plans'].get
+  update:
+    x-apievangelist-access: public
+    x-apievangelist-confirmed: 'HTTP 200 at x-v 1 on 2026-07-27, meta.totalRecords 493, totalPages 99'
+    x-apievangelist-host: https://cdr.energymadeeasy.gov.au/alinta/cds-au/v1
+- target: $.paths['/energy/plans/{planId}'].get
+  update:
+    x-apievangelist-access: public
+    x-apievangelist-confirmed: 'HTTP 200 at x-v 3 on 2026-07-27 for planId ALI1144886SRG2@EME'
+    x-apievangelist-host: https://cdr.energymadeeasy.gov.au/alinta/cds-au/v1
+- target: $.paths['/energy/accounts'].get
+  update:
+    x-apievangelist-access: accredited-only
+    x-apievangelist-gate: ACCC accreditation + consumer consent; host not published

@@ -1,0 +1,88 @@
+generated: '2026-07-27'
+method: searched
+source: https://consumerdatastandardsaustralia.github.io/standards/#security-profile
+docs: https://www.alintaenergy.com.au/help-and-support/terms-and-conditions/consumer-data-right-cdr
+note: >
+  The mechanical derive-authentication.py pass found no formal securitySchemes: the
+  harvested contracts are the shared DSB Consumer Data Standards documents, which
+  express per-operation authorisation via the x-scopes vendor extension rather than a
+  components.securitySchemes block. The model below is captured from the Consumer Data
+  Standards Security Profile (which binds Alinta as a designated CDR energy data holder)
+  and from Alinta's own published CDR page.
+summary:
+  types: [none, oauth2, openIdConnect, mutualTLS]
+  api_key_in: []
+  oauth2_flows: [authorizationCode, hybrid]
+  tiers:
+  - name: Public CDR discovery (Alinta-hosted)
+    auth: none
+    note: >
+      GET /cds-au/v1/discovery/status and GET /cds-au/v1/discovery/outages on
+      https://public.cdr.alintaenergy.com.au require NO authentication — only the
+      mandatory x-v version header. Both re-confirmed HTTP 200 on 2026-07-27.
+  - name: Generic plan data (AER-hosted on Alinta's behalf)
+    auth: none
+    note: >
+      GET /alinta/cds-au/v1/energy/plans and /energy/plans/{planId} on
+      https://cdr.energymadeeasy.gov.au are public and unauthenticated (x-v header only).
+      493 Alinta plans re-confirmed HTTP 200 on 2026-07-27. This host is operated by the
+      Australian Energy Regulator, not by Alinta.
+  - name: Consumer data sharing (CDR accredited-data-recipient model)
+    auth: [oauth2, openIdConnect, mutualTLS]
+    note: >
+      Every energy resource endpoint (accounts, balances, invoices, billing, payment
+      schedule, concessions, service points, usage, DER) and the common customer
+      endpoints are gated behind the CDR security profile. Access requires ACCC
+      accreditation (or a CDR representative/sponsorship arrangement), CDR
+      Register-issued credentials, dynamic client registration with Alinta's
+      authorisation server, and an explicit, time-bound, revocable consumer consent.
+schemes:
+- name: PublicNoAuth
+  type: none
+  applies_to:
+  - openapi/alinta-energy-cds-common-api-openapi.yml#getStatus
+  - openapi/alinta-energy-cds-common-api-openapi.yml#getOutages
+  - openapi/alinta-energy-cds-energy-api-openapi.yml#listEnergyPlans
+  - openapi/alinta-energy-cds-energy-api-openapi.yml#getEnergyPlanDetail
+  note: Version header x-v only (mandatory). Unsupported version returns HTTP 406.
+- name: CDR-FAPI-OAuth2
+  type: oauth2
+  profile: FAPI 1.0 Advanced (Financial-grade API Security Profile 1.0 Part 2, March 2021)
+  flows:
+  - flow: authorizationCode
+    note: >
+      OIDC Hybrid Flow / Authorization Code Flow with Pushed Authorisation Requests (PAR),
+      PKCE, signed request objects and JARM per the CDR Security Profile. The concrete
+      authorisation, token, PAR, JWKS, introspection, revocation and CDR arrangement
+      revocation endpoints are published per data holder through the CDR Register's
+      authenticated data holder brand detail record, not anonymously.
+  scopes_ref: scopes/alinta-energy-scopes.yml
+- name: CDR-OIDC
+  type: openIdConnect
+  note: >
+    OpenID Connect 1.0. No anonymous /.well-known/openid-configuration is served by
+    Alinta (confirmed HTTP 404 on public.cdr.alintaenergy.com.au, and the secure., idp.
+    and cdr. subdomains of alintaenergy.com.au do not resolve). See
+    well-known/alinta-energy-well-known.yml.
+- name: CDR-MTLS-HolderOfKey
+  type: mutualTLS
+  note: >
+    Mutual TLS with CDR Register CA-issued client certificates; access tokens are bound
+    to the ADR client certificate under the holder-of-key mechanism. BCP195-recommended
+    ciphers only (Data Standards obligation from 17 March 2025).
+customer_authentication:
+  flow: Redirect to Web with One Time Password (OTP)
+  evidence: >
+    Alinta's published CDR page states that when a consumer consents through an
+    accredited third party, "Alinta Energy will ask you to verify your identity using a
+    One Time Password sent to the mobile number connected to your Alinta Energy account."
+    (Page body returns HTTP 403 to automated clients; text retrieved from the public
+    search index on 2026-07-27.)
+  standard: https://consumerdatastandardsaustralia.github.io/standards/#authentication-flows
+policy:
+  cdr_policy: https://www.alintaenergy.com.au/help-and-support/terms-and-conditions/consumer-data-right-cdr/consumer-data-right-policy
+  cdr_page: https://www.alintaenergy.com.au/help-and-support/terms-and-conditions/consumer-data-right-cdr
+onboarding:
+  self_serve: false
+  gate: ACCC accreditation (Accredited Data Recipient) + consumer consent
+  note: No developer portal, no sandbox, no key request page, no commercial partner track outside the regulated scheme.

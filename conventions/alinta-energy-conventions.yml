@@ -1,0 +1,96 @@
+generated: '2026-07-27'
+method: searched
+source: openapi/alinta-energy-cds-energy-api-openapi.yml
+docs: https://consumerdatastandardsaustralia.github.io/standards/#high-level-standards
+note: >
+  Cross-cutting request/response semantics for Alinta Energy's CDR surface, taken from
+  the shared DSB Consumer Data Standards (the contract Alinta implements as a designated
+  energy data holder) and confirmed against the live public endpoints on 2026-07-27.
+authentication:
+  style: tiered
+  public: none (x-v header only) — CDR discovery status/outages and generic plan data
+  gated: OAuth2/OIDC FAPI 1.0 Advanced + holder-of-key mTLS (see authentication/alinta-energy-authentication.yml)
+uri_structure:
+  pattern: 'https://<holder-path>/cds-au/<version>/<industry>/<resource>'
+  confirmed:
+  - https://public.cdr.alintaenergy.com.au/cds-au/v1/discovery/status
+  - https://cdr.energymadeeasy.gov.au/alinta/cds-au/v1/energy/plans
+  note: >
+    The /cds-au/v1 path segment is the static CDR namespace, not an endpoint version —
+    endpoint versions are negotiated per call with the x-v header.
+versioning:
+  style: header-per-endpoint
+  request_headers:
+    x-v: Requested endpoint version (MANDATORY, positive integer).
+    x-min-v: Optional minimum acceptable version; the holder serves the highest version between x-min-v and x-v.
+    x-<HID>-v: Optional holder-specific version for extension fields.
+  response_headers:
+    x-v: The payload version actually served, echoed back. Confirmed x-v 1 on discovery and x-v 3 on plan detail.
+  unsupported: HTTP 406 (urn:au-cds:error:cds-all:Header/UnsupportedVersion)
+  invalid: HTTP 400 (urn:au-cds:error:cds-all:Header/InvalidVersion) when x-v is not a positive integer
+  ref: lifecycle/alinta-energy-lifecycle.yml
+payload_envelope:
+  shape: '{ "data": {...}, "links": {...}, "meta": {...} }'
+  confirmed_live: >
+    GET /cds-au/v1/discovery/status returned
+    {"data":{"status":"OK","updateTime":"...","explanation":"All services operational"},
+    "links":{"self":"..."},"meta":{}}
+  field_naming: camelCase
+pagination:
+  style: page-number
+  params:
+    page: 1-based page number (default 1).
+    page-size: records per page (default 25, maximum 1000).
+  response_fields:
+    links: {first, prev, self, next, last}
+    meta: {totalRecords, totalPages}
+  errors:
+    page_size_too_large: 400 urn:au-cds:error:cds-all:Field/InvalidPageSize
+    page_out_of_range: 422 urn:au-cds:error:cds-all:Field/InvalidPage
+  confirmed_live: 'GET /alinta/cds-au/v1/energy/plans returned meta.totalRecords 493, totalPages 99 at the default page size.'
+  cursor_support: Not used by the CDR energy endpoints; the standard permits holder-specific cursor patterns as an addition.
+request_tracing:
+  header: x-fapi-interaction-id
+  behavior: >
+    Optional client-supplied RFC 4122 UUID echoed back in the x-fapi-interaction-id
+    response header. If not supplied on an authenticated call the data holder MUST
+    generate one. Not required for unauthenticated calls.
+  additional_fapi_headers: [x-fapi-auth-date, x-fapi-customer-ip-address, x-cds-client-headers]
+content_negotiation:
+  request: 'Content-Type: application/json (mandatory for POST); Accept: application/json or */*'
+  response: application/json
+  unacceptable_accept: HTTP 406
+error_envelope:
+  shape: ResponseErrorListV2
+  fields: '{ errors: [ { code, title, detail, meta } ] }'
+  format: CDR error list with urn:au-cds:error:* codes — NOT RFC 9457 application/problem+json
+  ref: errors/alinta-energy-problem-types.yml
+idempotency:
+  supported: false
+  note: >
+    No idempotency-key contract exists on this surface. Every operation is a read: the
+    23 energy and 4 common operations are GET, except five POST endpoints
+    (listElectricityUsageForServicePoints, listElectricityDERForSpecificServicePoints,
+    listEnergyAccountBalancesSpecificAccounts, listEnergyInvoicesForSpecificAccounts,
+    listEnergyAccountBillingForSpecificAccounts) which use POST only to carry a list of
+    account/service-point identifiers as a query body — they create nothing. No
+    Idempotency pointer is emitted for this provider.
+rate_limiting:
+  signaling: No rate-limit response headers are defined by the Consumer Data Standards.
+  policy: >
+    Traffic thresholds, low-velocity data-set call caps, availability (99.5%/month) and
+    response-time tiers are mandated by the CDR Non-functional Requirements and may be
+    enforced by throttling or rejection.
+  ref: rate-limits/alinta-energy-rate-limits.yml
+metadata:
+  note: >
+    All list responses carry a meta object (totalRecords/totalPages for paginated sets);
+    error entries may carry a per-error meta with urn extensions.
+id_permanence:
+  note: >
+    Resource identifiers (accountId, servicePointId, planId) must be permanent and
+    non-guessable per the CDS ID Permanence rules; identifiers are consented-scoped.
+extensibility:
+  note: >
+    Holders may add fields and query parameters under the holder identifier (HID)
+    convention with x-<HID>-v versioning. No Alinta-specific extension is published.

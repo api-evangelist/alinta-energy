@@ -1,0 +1,39 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for Alinta Energy CDR Common API
+  version: 1.0.0
+extends: openapi/alinta-energy-cds-common-api-openapi.yml
+actions:
+- target: $.info
+  update:
+    x-apievangelist-provider: Alinta Energy
+    x-apievangelist-spec-provenance: >
+      Shared Treasury Data Standards Body Consumer Data Standards contract (CDR Common
+      API 1.36.0), not an Alinta-authored document.
+    x-apievangelist-public-operations: [getStatus, getOutages]
+    x-apievangelist-public-note: >
+      The discovery pair is the only API Alinta Energy serves from its own infrastructure
+      that a developer can call anonymously. The customer endpoints require ACCC
+      accreditation and consumer consent; /common/customer returns HTTP 404 on the public
+      base URI.
+    x-apievangelist-verified: '2026-07-27'
+- target: $.servers
+  update:
+  - description: Alinta Energy CDR public base URI (discovery endpoints confirmed live)
+    url: https://public.cdr.alintaenergy.com.au/cds-au/v1
+  - description: Lumo Energy CDR public base URI (Alinta's second retail brand, separately registered data holder)
+    url: https://public.cdr.lumoenergy.com.au/cds-au/v1
+- target: $.paths['/discovery/status'].get
+  update:
+    x-apievangelist-access: public
+    x-apievangelist-confirmed: 'HTTP 200 at x-v 1 on 2026-07-27 — status OK, "All services operational"'
+    x-apievangelist-host: https://public.cdr.alintaenergy.com.au/cds-au/v1
+- target: $.paths['/discovery/outages'].get
+  update:
+    x-apievangelist-access: public
+    x-apievangelist-confirmed: 'HTTP 200 at x-v 1 on 2026-07-27 — empty outages array'
+    x-apievangelist-host: https://public.cdr.alintaenergy.com.au/cds-au/v1
+- target: $.paths['/common/customer'].get
+  update:
+    x-apievangelist-access: accredited-only
+    x-apievangelist-confirmed: HTTP 404 on the Alinta public base URI (by design; served only on the unpublished mTLS host)

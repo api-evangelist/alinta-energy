@@ -1,0 +1,16 @@
+generated: '2026-07-27'
+method: generated
+note: >
+  Skills are grounded only in operations that can actually be executed anonymously. The
+  23 consented CDR operations are excluded: they require ACCC accreditation, a CDR
+  Register client certificate and a live consumer consent, and Alinta does not publish
+  the mTLS host they live on.
+skills:
+- file: alinta-energy-plan-catalogue.md
+  name: Retrieve Alinta Energy plan catalogue (CDR generic plan data)
+  api: openapi/alinta-energy-cds-energy-api-openapi.yml
+  operations: [listEnergyPlans, getEnergyPlanDetail]
+- file: alinta-energy-cdr-availability.md
+  name: Check Alinta Energy CDR availability and outages
+  api: openapi/alinta-energy-cds-common-api-openapi.yml
+  operations: [getStatus, getOutages]

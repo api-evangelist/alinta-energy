@@ -1,0 +1,86 @@
+generated: '2026-07-27'
+method: derived
+source: openapi/alinta-energy-cds-energy-api-openapi.yml
+enriched_from: https://consumerdatastandardsaustralia.github.io/standards/
+note: >
+  Standards conformance for Alinta Energy's CDR surface. Conformance to the Consumer
+  Data Standards is verified three ways (CDR Register brand entry, live standards-shaped
+  responses from Alinta's own base URI, and anonymously retrievable plan data on the AER
+  platform) — see review.yml. Everything else is derived from the contracts and the
+  standards they reference. No certification, audit report or trust centre is published
+  by Alinta, so no Compliance pointer is emitted.
+standards:
+- id: cdr-consumer-data-standards
+  version: 1.36.0
+  conforms: true
+  evidence: >
+    Alinta Energy is a designated CDR energy data holder (brand ID
+    8bd0fd93-9d26-ee11-a83d-000d3a8830d6, ABN 22149658300) listed in the public CDR
+    Register with publicBaseUri https://public.cdr.alintaenergy.com.au. Its
+    /cds-au/v1/discovery/status and /discovery/outages endpoints returned HTTP 200 with
+    the mandated data/links/meta envelope and x-v header on 2026-07-27.
+- id: cdr-energy-sector-designation
+  conforms: true
+  evidence: Designated under Part IVD of the Competition and Consumer Act 2010; administered by the ACCC.
+- id: oauth2
+  conforms: true
+  scope: gated (accredited) endpoints only
+  evidence: CDR security profile mandates OAuth 2.0 for consumer data sharing; per-operation x-scopes present in both contracts.
+- id: oidc
+  conforms: true
+  scope: gated endpoints only
+  evidence: OpenID Connect 1.0 hybrid/authorization-code flow per the CDR security profile.
+- id: fapi-1.0-advanced
+  conforms: true
+  scope: gated endpoints only
+  evidence: The CDR security profile builds on the Financial-grade API 1.0 Advanced profile (PAR, PKCE, request objects, JARM, holder-of-key mTLS).
+- id: mtls-rfc8705
+  conforms: true
+  scope: gated endpoints only
+  evidence: Holder-of-key mutual TLS binds access tokens to the ADR client certificate issued by the CDR Register CA.
+- id: oauth2-dynamic-client-registration-rfc7591
+  conforms: true
+  scope: gated endpoints only
+  evidence: The CDR security profile requires dynamic client registration of Data Recipient Software Products with each data holder.
+- id: bcp195-tls
+  conforms: true
+  evidence: >
+    Data holders MUST support only BCP195-recommended ciphers from 17 March 2025. Probing
+    confirmed TLSv1.3 on public.cdr.alintaenergy.com.au and www.alintaenergy.com.au (see
+    security/alinta-energy-domain-security.yml).
+- id: rfc9457-problem-details
+  conforms: false
+  evidence: CDR uses its own ResponseErrorListV2 shape with urn:au-cds:error:* codes, not application/problem+json.
+- id: rfc8594-sunset-header
+  conforms: false
+  evidence: Endpoint retirement is scheduled by dated Future Dated Obligations, not by Sunset/Deprecation headers.
+- id: pagination
+  conforms: true
+  evidence: LinksPaginated/MetaPaginated with page + page-size query params and totalRecords/totalPages, max page size 1000.
+- id: idempotency
+  conforms: false
+  evidence: The surface is read-only; no idempotency-key contract is defined for CDR energy endpoints.
+- id: json-api
+  conforms: false
+- id: odata
+  conforms: false
+- id: fhir
+  conforms: false
+- id: green-button-espi
+  conforms: false
+  evidence: No Green Button / ESPI, OCPP, OCPI, OpenADR, IEEE 2030.5 or IEC CIM surface was found anywhere in Alinta's public estate.
+- id: asyncapi
+  conforms: false
+  evidence: No event, streaming or webhook surface exists. Outage notification is polling-only via GET /discovery/outages.
+compliance_pages:
+- url: https://www.alintaenergy.com.au/about-us/who-we-are/governance-risk-management-and-compliance
+  status: 403
+  note: >
+    Alinta's corporate governance, risk management and compliance page is indexed
+    publicly and is known to name information security and privacy/information management
+    as compliance strands, but the page body returns HTTP 403 to every automated client,
+    so its contents are not quoted and no certification (SOC 2, ISO 27001, PCI DSS) is
+    claimed here.
+- url: https://www.alintaenergy.com.au/help-and-support/terms-and-conditions/consumer-data-right-cdr/consumer-data-right-policy
+  status: 403
+  note: Alinta's CDR policy, required of every data holder by the CDR rules. Indexed publicly; body not retrievable.
