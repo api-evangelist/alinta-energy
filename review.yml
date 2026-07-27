@@ -1,0 +1,328 @@
+aid: alinta-energy
+name: Alinta Energy
+review:
+  question: >-
+    Is Alinta Energy's Consumer Data Right (CDR) energy obligation an actual live
+    implementation, or only a designation and a compliance claim?
+  answer: >-
+    Live and implemented, and verified three independent ways — but implemented in a
+    shape that gives an ordinary developer almost nothing.
+  date: '2026-07-27'
+  reviewer: API Evangelist
+  cdrRegisterEntryConfirmed: true
+  cdrLiveEndpointConfirmed: true
+  specProvenance: dsb-cds-standard
+  specScopeNote: |
+    Alinta Energy publishes no proprietary OpenAPI. The two contracts harvested into
+    openapi/ are the shared Data Standards Body (DSB) Consumer Data Standards
+    documents that Alinta's endpoints conform to, downloaded verbatim on 2026-07-27
+    and converted JSON to YAML without content changes:
+      - openapi/alinta-energy-cds-energy-api-openapi.yml
+        source: https://consumerdatastandardsaustralia.github.io/standards/includes/swagger/cds_energy.json
+        HTTP 200, OpenAPI 3.0.3, "CDR Energy API" 1.36.0, 18 paths / 23 operations.
+      - openapi/alinta-energy-cds-common-api-openapi.yml
+        source: https://consumerdatastandardsaustralia.github.io/standards/includes/swagger/cds_common.json
+        HTTP 200, OpenAPI 3.0.3, "CDR Common API" 1.36.0, 4 paths.
+    These are the industry-shared standard, NOT Alinta-authored contracts. The
+    servers block in the DSB energy document is the placeholder
+    https://mtls.dh.example.com/cds-au/v1 — the standard deliberately does not name
+    any data holder host.
+
+mandate:
+  regime: cdr-energy
+  regimeVerbatim: >-
+    The Australian Consumer Data Right, established under Part IVD of the
+    Competition and Consumer Act 2010, designated the energy sector and is
+    administered by the ACCC with API contracts written by the Treasury Data
+    Standards Body. It is the same statutory machinery, the same regulator and the
+    same standards body that produced the byte-for-byte identical banking APIs, and
+    Alinta Energy is bound by it as a designated energy data holder.
+  status: live-implemented
+  statusVerbatim: >-
+    Not a claim, not a press release, not merely a regulator listing an obligation.
+    Alinta Energy appears as a live brand in the public CDR Register with a real
+    publicBaseUri, AND that base URI answered standards-conformant requests with
+    HTTP 200 during probing, AND 493 of its energy plans are retrievable
+    anonymously through the CDR generic plan data channel. All three were confirmed
+    on 2026-07-27.
+  howVerified:
+    - step: CDR Register entry
+      probe: GET https://api.cdr.gov.au/cdr-register/v1/energy/data-holders/brands/summary (header x-v 1)
+      result: HTTP 200
+      finding: >-
+        84 energy data holder brands returned. Alinta Energy is present with
+        dataHolderBrandId 8bd0fd93-9d26-ee11-a83d-000d3a8830d6,
+        interimId cd3f2e4f-bbef-4890-864b-67b7698c4624, ABN 22149658300,
+        ACN 149658300, industries ["energy"], lastUpdated 2026-07-01T12:15:27Z, and
+        publicBaseUri https://public.cdr.alintaenergy.com.au. Alinta's second retail
+        brand, Lumo Energy, is a separate register entry with its own base URI
+        https://public.cdr.lumoenergy.com.au.
+    - step: Live conformant endpoint on Alinta's own infrastructure
+      probe: GET https://public.cdr.alintaenergy.com.au/cds-au/v1/discovery/status (header x-v 1)
+      result: HTTP 200
+      finding: >-
+        Returned {"data":{"status":"OK","updateTime":"2026-07-27T12:06:40Z",
+        "explanation":"All services operational"}} with the CDS-mandated
+        data/links/meta envelope. GET /cds-au/v1/discovery/outages also returned
+        HTTP 200 with an empty outages array. The same two endpoints on the Lumo
+        Energy base URI also returned HTTP 200.
+    - step: Anonymous plan data actually retrievable
+      probe: GET https://cdr.energymadeeasy.gov.au/alinta/cds-au/v1/energy/plans (header x-v 1)
+      result: HTTP 200
+      finding: >-
+        meta.totalRecords 493, totalPages 99, first record planId
+        ALI1144886SRG2@EME (STANDING, GAS, brandName "Alinta Energy", distributor
+        "AGN Metro/Barossa/Peterborough"). Plan detail
+        GET /alinta/cds-au/v1/energy/plans/ALI1144886SRG2@EME returned HTTP 200 at
+        x-v 3. Lumo Energy's equivalent slug returned 175 plans.
+  negativeFindings:
+    - >-
+      Alinta's OWN base URI serves only the two discovery endpoints. GET
+      https://public.cdr.alintaenergy.com.au/cds-au/v1/energy/plans returned HTTP 404
+      (nginx) at every version header tried, x-v 1 through 5.
+      /cds-au/v1/common/customer, /cds-au/v1/ and / all returned HTTP 404 as well.
+    - >-
+      The same 404-on-plans behaviour was confirmed on AGL
+      (https://public.cdr.agl.com.au) and on Lumo, so this is the energy sector's
+      architecture rather than an Alinta defect: in CDR energy the open generic plan
+      data lives centrally at the Australian Energy Regulator, not on the retailer.
+    - >-
+      No anonymous OpenID Connect discovery document is served. GET
+      https://public.cdr.alintaenergy.com.au/.well-known/openid-configuration
+      returned HTTP 404, and secure.cdr., idp.cdr. and cdr.alintaenergy.com.au did
+      not resolve at all (curl exit / HTTP 000).
+    - >-
+      Alinta's public web estate is behind a WAF that refuses all automated clients.
+      https://www.alintaenergy.com.au/ and every path probed beneath it — including
+      the Consumer Data Right page, /developers, /api, /docs, /openapi.json,
+      /swagger.json, /api-docs, /.well-known/security.txt and
+      /.well-known/openid-configuration — returned HTTP 403 to curl with both a
+      default and a browser user agent, and to WebFetch. The CDR policy pages are
+      indexed by search engines and are known to exist, but their contents could not
+      be fetched and are therefore not quoted here.
+
+dataStandard:
+  name: CDR Consumer Data Standards (Energy)
+  version: 1.36.0
+  publisher: Treasury Data Standards Body, Australia
+  url: https://consumerdatastandardsaustralia.github.io/standards/
+  note: >-
+    The energy standards are a genuine transplant of the banking machinery, not a
+    re-derivation: same envelope (data/links/meta), same x-v version-header
+    negotiation, same urn:au-cds error codes, same FAPI-profiled security model.
+    Only the resource nouns changed — servicepoints, usage, DER, accounts, balances,
+    invoices, billing, concessions, payment-schedule instead of accounts,
+    transactions, payees and direct debits.
+  otherStandardsFound: >-
+    No Green Button / ESPI, no OCPP, no OCPI, no OpenADR, no IEEE 2030.5 and no
+    IEC CIM reference was found anywhere in Alinta's public surface.
+
+consumerVsMarketDataSplit:
+  consumerDataApi:
+    exists: true
+    verified: designation and transport verified; resource endpoints not reachable anonymously by design
+    surface: >-
+      The full CDS energy resource set — GET /energy/accounts,
+      /energy/accounts/{accountId}, /balance, /invoices, /billing,
+      /payment-schedule, /concessions, /energy/electricity/servicepoints,
+      /servicepoints/{id}/usage, /servicepoints/{id}/der and their bulk GET and POST
+      variants (23 operations across 18 paths in CDR Energy API 1.36.0).
+    reachableAnonymously: false
+    note: >-
+      Alinta does not publish the mTLS resource base URI or the infosec base URI.
+      Those live only in the CDR Register's data holder brand DETAIL record, which
+      requires an accredited client certificate. An unaccredited developer cannot
+      even learn the hostname, let alone call it.
+  marketDataOpen:
+    exists: false
+    note: >-
+      Alinta Energy publishes no open grid, market, system, generation or emissions
+      data of its own — no dispatch feed, no fuel mix, no outage register beyond the
+      CDR discovery outages stub, no data portal. Australian open market data is
+      AEMO's business, not the retailer's. The one genuinely anonymous dataset
+      bearing Alinta's name, the 493 plans, is retail tariff data published by the
+      Australian Energy Regulator on Alinta's behalf.
+  theFinding: >-
+    The split in Australian energy does not run between an open producer and a
+    closed one — it runs between two HOSTS. Everything a stranger can read about
+    Alinta is served by the government: 493 plans on the AER's Energy Made Easy CDR
+    platform. Everything Alinta serves from its own metal is either a health check
+    or invisible without ACCC accreditation. The mandate was transplanted from
+    banking successfully at the level of the contract, and then inverted at the
+    level of who hosts the open half. In banking every bank runs its own
+    unauthenticated Product Reference Data endpoint; in energy the retailer runs
+    two status endpoints and the regulator runs the open catalogue.
+
+accessGate:
+  gate: accredited-only
+  whatADeveloperMustDo: >-
+    To read Alinta's plan catalogue: nothing at all — GET
+    https://cdr.energymadeeasy.gov.au/alinta/cds-au/v1/energy/plans with header
+    x-v 1 works right now, anonymously, no key. To obtain any individual customer's
+    usage, billing or account data: become an ACCC-accredited data recipient (or
+    operate under a CDR representative / sponsorship arrangement), be issued CDR
+    Register credentials and a client certificate, discover Alinta's infosec and
+    resource base URIs through the authenticated Register detail endpoint, register
+    dynamically with Alinta's authorisation server, then obtain an explicit,
+    time-bound, revocable consent from the Alinta customer whose data is sought.
+    There is no sandbox, no signup form, no key request page and no commercial
+    partner track outside the regulated scheme.
+  developerPortal:
+    exists: false
+    note: >-
+      No developer portal exists. developer.alintaenergy.com.au and
+      api.alintaenergy.com.au both returned HTTP 403 — but so did
+      https://www.alintaenergy.com.au/ itself, so the 403 is the site-wide WAF and
+      is NOT evidence of a portal. developers., docs. and data. subdomains did not
+      resolve (HTTP 000). The GitHub organisation https://github.com/AlintaEnergy is
+      real (created 2017-10-24, 5 public repos) but contains only Sitecore CMS
+      tooling and frontend hiring tests — sitecore-docker-images,
+      Sitecore-Azure-Quickstart-Templates, UrlRewrite, Frontend.Test.CustomerList,
+      Angular-code-test. No API artifacts.
+
+authModel:
+  genericPlanData: none — public, unauthenticated GET, version negotiated by the x-v request header
+  discoveryEndpoints: none — public, unauthenticated GET on Alinta's own base URI
+  consumerDataSharing: >-
+    OAuth2 / OpenID Connect under the FAPI 1.0 Advanced profile as mandated by the
+    Consumer Data Standards, layered on mutual TLS with CDR Register-issued client
+    certificates, with dynamic client registration and per-consumer consent and
+    authorisation. Access is limited to ACCC-accredited data recipients. No
+    anonymous OIDC discovery document is served, so the concrete issuer, endpoints
+    and scopes could not be captured.
+
+homeMarket:
+  country: Australia
+  regulator: ACCC (Consumer Data Right), AER (retail market and Energy Made Easy), AEMO (market operator)
+  states: Western Australia, South Australia, Victoria, New South Wales, Queensland
+  position: >-
+    Vertically integrated retailer and generator — roughly 3,000 MW owned and
+    contracted across gas, coal, wind, solar and battery, and more than one million
+    retail customers. Owned by Chow Tai Fook Enterprises (Hong Kong). Second retail
+    brand: Lumo Energy, a separately registered CDR data holder.
+
+transports:
+  - protocol: REST
+    scheme: https
+    baseURL: https://public.cdr.alintaenergy.com.au/cds-au/v1
+    documented: true
+    verified: true
+    note: Alinta-hosted. Only /discovery/status and /discovery/outages resolve; everything else 404.
+  - protocol: REST
+    scheme: https
+    baseURL: https://cdr.energymadeeasy.gov.au/alinta/cds-au/v1
+    documented: true
+    verified: true
+    note: AER-hosted on Alinta's behalf. Generic plan data, 493 records, fully anonymous.
+  - protocol: REST over mTLS
+    scheme: https
+    baseURL: not published
+    documented: true
+    verified: false
+    note: >-
+      The CDS energy resource surface. Contract is public and mandatory; the host is
+      disclosed only to accredited data recipients via the CDR Register detail
+      endpoint.
+
+endpointsConfirmed:
+  - GET https://api.cdr.gov.au/cdr-register/v1/energy/data-holders/brands/summary (HTTP 200, x-v 1, 84 energy brands)
+  - GET https://public.cdr.alintaenergy.com.au/cds-au/v1/discovery/status (HTTP 200, x-v 1, status OK)
+  - GET https://public.cdr.alintaenergy.com.au/cds-au/v1/discovery/outages (HTTP 200, x-v 1, no outages)
+  - GET https://cdr.energymadeeasy.gov.au/alinta/cds-au/v1/energy/plans (HTTP 200, x-v 1, totalRecords 493)
+  - GET https://cdr.energymadeeasy.gov.au/alinta/cds-au/v1/energy/plans/ALI1144886SRG2@EME (HTTP 200, x-v 3)
+  - GET https://public.cdr.lumoenergy.com.au/cds-au/v1/discovery/status (HTTP 200, x-v 1, sibling brand)
+  - GET https://cdr.energymadeeasy.gov.au/lumo/cds-au/v1/energy/plans (HTTP 200, x-v 1, totalRecords 175)
+  - GET https://api.github.com/orgs/AlintaEnergy (HTTP 200, 5 public repos, no API artifacts)
+
+endpointsProbedAndNotFound:
+  - GET https://public.cdr.alintaenergy.com.au/cds-au/v1/energy/plans (HTTP 404 at x-v 1,2,3,4,5)
+  - GET https://public.cdr.alintaenergy.com.au/cds-au/v1/common/customer (HTTP 404)
+  - GET https://public.cdr.alintaenergy.com.au/cds-au/v1/ (HTTP 404)
+  - GET https://public.cdr.alintaenergy.com.au/.well-known/openid-configuration (HTTP 404)
+  - GET https://secure.cdr.alintaenergy.com.au/.well-known/openid-configuration (HTTP 000, DNS did not resolve)
+  - GET https://idp.cdr.alintaenergy.com.au/.well-known/openid-configuration (HTTP 000, DNS did not resolve)
+  - GET https://cdr.alintaenergy.com.au/.well-known/openid-configuration (HTTP 000, DNS did not resolve)
+  - GET https://developers.alintaenergy.com.au (HTTP 000, DNS did not resolve)
+  - GET https://docs.alintaenergy.com.au (HTTP 000, DNS did not resolve)
+  - GET https://data.alintaenergy.com.au (HTTP 000, DNS did not resolve)
+  - GET https://developer.alintaenergy.com.au (HTTP 403, site-wide WAF, same as the homepage)
+  - GET https://api.alintaenergy.com.au (HTTP 403, site-wide WAF, same as the homepage)
+  - GET https://www.alintaenergy.com.au/ (HTTP 403 to curl with default and browser user agents, and to WebFetch)
+  - GET https://www.alintaenergy.com.au/developers (HTTP 403)
+  - GET https://www.alintaenergy.com.au/api (HTTP 403)
+  - GET https://www.alintaenergy.com.au/docs (HTTP 403)
+  - GET https://www.alintaenergy.com.au/openapi.json (HTTP 403)
+  - GET https://www.alintaenergy.com.au/swagger.json (HTTP 403)
+  - GET https://www.alintaenergy.com.au/api-docs (HTTP 403)
+  - GET https://www.alintaenergy.com.au/.well-known/security.txt (HTTP 403)
+  - GET https://www.alintaenergy.com.au/.well-known/openid-configuration (HTTP 403)
+  - GET https://www.alintaenergy.com.au/help-and-support/terms-and-conditions/consumer-data-right-cdr (HTTP 403)
+
+sources:
+  - url: https://api.cdr.gov.au/cdr-register/v1/energy/data-holders/brands/summary
+    type: Registry
+    fetched: '2026-07-27'
+    status: 200
+    note: >-
+      Public CDR Register. Authoritative proof of designation and of the
+      publicBaseUri. 84 energy data holder brands; Alinta Energy and Lumo Energy are
+      both listed. Roughly half the register points at
+      cdr.energymadeeasy.gov.au/<slug> white-label hosting; Alinta self-hosts.
+  - url: https://public.cdr.alintaenergy.com.au/cds-au/v1/discovery/status
+    type: APIReference
+    fetched: '2026-07-27'
+    status: 200
+    note: Alinta-operated, standards-conformant, live. The implementation evidence.
+  - url: https://cdr.energymadeeasy.gov.au/alinta/cds-au/v1/energy/plans
+    type: APIReference
+    fetched: '2026-07-27'
+    status: 200
+    note: 493 Alinta plans, anonymous, AER-hosted. The open half of the split.
+  - url: https://consumerdatastandardsaustralia.github.io/standards/includes/swagger/cds_energy.json
+    type: OpenAPI
+    fetched: '2026-07-27'
+    status: 200
+    note: >-
+      Source of openapi/alinta-energy-cds-energy-api-openapi.yml. CDR Energy API
+      1.36.0, OpenAPI 3.0.3, 18 paths, converted JSON to YAML verbatim.
+  - url: https://consumerdatastandardsaustralia.github.io/standards/includes/swagger/cds_common.json
+    type: OpenAPI
+    fetched: '2026-07-27'
+    status: 200
+    note: >-
+      Source of openapi/alinta-energy-cds-common-api-openapi.yml. CDR Common API
+      1.36.0, OpenAPI 3.0.3, 4 paths including the discovery endpoints Alinta serves.
+  - url: https://consumerdatastandardsaustralia.github.io/standards/
+    type: APIStandards
+    fetched: '2026-07-27'
+    status: 200
+    note: Data Standards Body Consumer Data Standards, the contract Alinta implements.
+  - url: https://api.github.com/orgs/AlintaEnergy
+    type: GitHubOrganization
+    fetched: '2026-07-27'
+    status: 200
+    note: Real org, 5 public repos, Sitecore CMS tooling and hiring tests only.
+  - url: https://www.alintaenergy.com.au/help-and-support/terms-and-conditions/consumer-data-right-cdr
+    type: ConsumerDataRight
+    fetched: '2026-07-27'
+    status: 403
+    note: >-
+      Alinta's own CDR page. Known to exist and indexed publicly, describing Alinta
+      as a designated data holder and describing consumer consent and withdrawal,
+      but the page body could not be retrieved — the site returns 403 to every
+      automated client. Recorded as unverified rather than quoted.
+
+actions:
+  openapiHarvested: true
+  openapiCount: 2
+  openapiProvenance: dsb-cds-standard (not provider-authored)
+  apisListed: 3
+  apisYmlCreated: true
+  reason: >-
+    Alinta Energy is a genuine live CDR energy implementation, which makes it a
+    useful control case rather than a compliance stub. But nothing here is a
+    developer product. Two API entries are real and anonymously callable — a status
+    pair Alinta hosts, and a 493-plan catalogue the regulator hosts — and the third,
+    the consumer data surface the mandate actually exists to create, is listed
+    without a baseURL because Alinta publishes none. The mandate was replicated.
+    The developer-facing implementation was not.
