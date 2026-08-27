@@ -37,27 +37,16 @@ created: '2026-07-27'
 modified: '2026-07-27'
 specificationVersion: '0.23'
 apis:
-- aid: alinta-energy:alinta-energy-cdr-discovery-api
-  name: Alinta Energy CDR Discovery API
-  description: >-
-    The only API Alinta Energy serves from its own infrastructure that a developer
-    can call anonymously. Two unauthenticated operations mandated by the Australian
-    Consumer Data Standards for every data holder — GET /discovery/status and
-    GET /discovery/outages — which report whether the data holder's CDR surface is
-    operational and disclose planned or current outages. Both were confirmed live on
-    2026-07-27 with HTTP 200 and header x-v 1, returning status "OK" ("All services
-    operational") and an empty outages array. No other path under this base URI
-    resolves; /energy/plans and /common/customer both returned HTTP 404.
+- aid: alinta-energy:alinta-energy-data-holder-customers-api
+  name: Alinta Energy Data Holder Customers API
+  description: Data Holder Customer endpoints
   humanURL: https://consumerdatastandardsaustralia.github.io/standards/#discovery-apis
   baseURL: https://public.cdr.alintaenergy.com.au/cds-au/v1
   tags:
-  - Consumer Data Right
-  - Discovery
-  - Status
-  - Outages
+  - Data Holder Customers
   properties:
   - type: OpenAPI
-    url: openapi/alinta-energy-cds-common-api-openapi.yml
+    url: openapi/alinta-energy-data-holder-customers-api-openapi.yml
   - type: APIReference
     url: https://consumerdatastandardsaustralia.github.io/standards/#discovery-apis
   - type: Documentation
@@ -66,77 +55,231 @@ apis:
     url: https://public.cdr.alintaenergy.com.au/cds-au/v1/discovery/status
   - type: APIStandards
     url: https://consumerdatastandardsaustralia.github.io/standards/
-- aid: alinta-energy:alinta-energy-cdr-generic-plan-data-api
-  name: Alinta Energy CDR Generic Plan Data API
-  description: >-
-    Alinta Energy's public electricity and gas plan catalogue, exposed as the CDR
-    energy Generic Plan Data endpoints GET /energy/plans and
-    GET /energy/plans/{planId}. Confirmed live on 2026-07-27 with HTTP 200 returning
-    meta.totalRecords of 493 Alinta plans, and a plan detail fetch for planId
-    ALI1144886SRG2@EME returning HTTP 200 at x-v 3. This data is genuinely open —
-    no key, no consent, no accreditation — but the critical fact is that it is NOT
-    served by Alinta. Unlike Australian banking, where every bank hosts its own
-    Product Reference Data, the CDR energy regime centralises generic plan data at
-    the Australian Energy Regulator, and this endpoint runs on the AER's Energy Made
-    Easy CDR platform under the retailer slug "alinta". Alinta's own host returns
-    404 for the same path.
-  humanURL: https://www.energymadeeasy.gov.au/
-  baseURL: https://cdr.energymadeeasy.gov.au/alinta/cds-au/v1
-  tags:
-  - Consumer Data Right
-  - Energy Plans
-  - Tariffs
-  - Open Data
-  - Electricity
-  - Gas
-  properties:
-  - type: OpenAPI
-    url: openapi/alinta-energy-cds-energy-api-openapi.yml
   - type: APIReference
     url: https://consumerdatastandardsaustralia.github.io/standards/#energy-plans
-  - type: Documentation
-    url: https://consumerdatastandardsaustralia.github.io/standards/
-  - type: APIStandards
-    url: https://consumerdatastandardsaustralia.github.io/standards/
-- aid: alinta-energy:alinta-energy-cdr-energy-api
-  name: Alinta Energy CDR Energy API
-  description: >-
-    The mandated consumer data-sharing surface. As a designated CDR energy data
-    holder (register brand ID 8bd0fd93-9d26-ee11-a83d-000d3a8830d6, ABN 22149658300),
-    Alinta must serve the Consumer Data Standards energy resource endpoints —
-    accounts, balances, invoices, billing, payment schedules, concessions,
-    electricity service points, interval usage and distributed energy resources —
-    to ACCC-accredited data recipients holding a valid consumer consent. No baseURL
-    is recorded because none is published: the mTLS resource and infosec base URIs
-    are disclosed only through the CDR Register's authenticated data holder brand
-    detail endpoint, which requires an accredited client certificate. Probes of
-    secure., idp. and cdr. subdomains of alintaenergy.com.au did not resolve, and
-    no /.well-known/openid-configuration is served anonymously. The contract below
-    is the shared Data Standards Body specification Alinta implements, not an
-    Alinta-authored document.
-  humanURL: https://www.alintaenergy.com.au/help-and-support/terms-and-conditions/consumer-data-right-cdr
-  tags:
-  - Consumer Data Right
-  - Energy Accounts
-  - Usage
-  - Billing
-  - Distributed Energy Resources
-  - Consent
-  properties:
-  - type: OpenAPI
-    url: openapi/alinta-energy-cds-energy-api-openapi.yml
-  - type: OpenAPI
-    url: openapi/alinta-energy-cds-common-api-openapi.yml
   - type: APIReference
     url: https://consumerdatastandardsaustralia.github.io/standards/#energy-apis
-  - type: Documentation
-    url: https://consumerdatastandardsaustralia.github.io/standards/
   - type: ConsumerDataRight
-    url: https://www.alintaenergy.com.au/help-and-support/terms-and-conditions/consumer-data-right-cdr
+    url: >-
+      https://www.alintaenergy.com.au/help-and-support/terms-and-conditions/consumer-data-right-cdr
   - type: Registry
     url: https://api.cdr.gov.au/cdr-register/v1/energy/data-holders/brands/summary
+- aid: alinta-energy:alinta-energy-data-holder-operations-api
+  name: Alinta Energy Data Holder Operations API
+  description: Data Holder Operations endpoints
+  humanURL: https://consumerdatastandardsaustralia.github.io/standards/#discovery-apis
+  baseURL: https://public.cdr.alintaenergy.com.au/cds-au/v1
+  tags:
+  - Data Holder Operations
+  properties:
+  - type: OpenAPI
+    url: openapi/alinta-energy-data-holder-operations-api-openapi.yml
+  - type: APIReference
+    url: https://consumerdatastandardsaustralia.github.io/standards/#discovery-apis
+  - type: Documentation
+    url: https://consumerdatastandardsaustralia.github.io/standards/
+  - type: Status
+    url: https://public.cdr.alintaenergy.com.au/cds-au/v1/discovery/status
   - type: APIStandards
     url: https://consumerdatastandardsaustralia.github.io/standards/
+  - type: APIReference
+    url: https://consumerdatastandardsaustralia.github.io/standards/#energy-plans
+  - type: APIReference
+    url: https://consumerdatastandardsaustralia.github.io/standards/#energy-apis
+  - type: ConsumerDataRight
+    url: >-
+      https://www.alintaenergy.com.au/help-and-support/terms-and-conditions/consumer-data-right-cdr
+  - type: Registry
+    url: https://api.cdr.gov.au/cdr-register/v1/energy/data-holders/brands/summary
+- aid: alinta-energy:alinta-energy-distributed-energy-resources-api
+  name: Alinta Energy Distributed Energy Resources API
+  description: Distributed Energy Resource endpoints
+  humanURL: https://consumerdatastandardsaustralia.github.io/standards/#discovery-apis
+  baseURL: https://public.cdr.alintaenergy.com.au/cds-au/v1
+  tags:
+  - Distributed Energy Resources
+  properties:
+  - type: OpenAPI
+    url: openapi/alinta-energy-distributed-energy-resources-api-openapi.yml
+  - type: APIReference
+    url: https://consumerdatastandardsaustralia.github.io/standards/#discovery-apis
+  - type: Documentation
+    url: https://consumerdatastandardsaustralia.github.io/standards/
+  - type: Status
+    url: https://public.cdr.alintaenergy.com.au/cds-au/v1/discovery/status
+  - type: APIStandards
+    url: https://consumerdatastandardsaustralia.github.io/standards/
+  - type: APIReference
+    url: https://consumerdatastandardsaustralia.github.io/standards/#energy-plans
+  - type: APIReference
+    url: https://consumerdatastandardsaustralia.github.io/standards/#energy-apis
+  - type: ConsumerDataRight
+    url: >-
+      https://www.alintaenergy.com.au/help-and-support/terms-and-conditions/consumer-data-right-cdr
+  - type: Registry
+    url: https://api.cdr.gov.au/cdr-register/v1/energy/data-holders/brands/summary
+- aid: alinta-energy:alinta-energy-electricity-service-points-api
+  name: Alinta Energy Electricity Service Points API
+  description: Electricity Service Point endpoints
+  humanURL: https://consumerdatastandardsaustralia.github.io/standards/#discovery-apis
+  baseURL: https://public.cdr.alintaenergy.com.au/cds-au/v1
+  tags:
+  - Electricity Service Points
+  properties:
+  - type: OpenAPI
+    url: openapi/alinta-energy-electricity-service-points-api-openapi.yml
+  - type: APIReference
+    url: https://consumerdatastandardsaustralia.github.io/standards/#discovery-apis
+  - type: Documentation
+    url: https://consumerdatastandardsaustralia.github.io/standards/
+  - type: Status
+    url: https://public.cdr.alintaenergy.com.au/cds-au/v1/discovery/status
+  - type: APIStandards
+    url: https://consumerdatastandardsaustralia.github.io/standards/
+  - type: APIReference
+    url: https://consumerdatastandardsaustralia.github.io/standards/#energy-plans
+  - type: APIReference
+    url: https://consumerdatastandardsaustralia.github.io/standards/#energy-apis
+  - type: ConsumerDataRight
+    url: >-
+      https://www.alintaenergy.com.au/help-and-support/terms-and-conditions/consumer-data-right-cdr
+  - type: Registry
+    url: https://api.cdr.gov.au/cdr-register/v1/energy/data-holders/brands/summary
+- aid: alinta-energy:alinta-energy-electricity-usage-api
+  name: Alinta Energy Electricity Usage API
+  description: Electricity Usage endpoints
+  humanURL: https://consumerdatastandardsaustralia.github.io/standards/#discovery-apis
+  baseURL: https://public.cdr.alintaenergy.com.au/cds-au/v1
+  tags:
+  - Electricity Usage
+  properties:
+  - type: OpenAPI
+    url: openapi/alinta-energy-electricity-usage-api-openapi.yml
+  - type: APIReference
+    url: https://consumerdatastandardsaustralia.github.io/standards/#discovery-apis
+  - type: Documentation
+    url: https://consumerdatastandardsaustralia.github.io/standards/
+  - type: Status
+    url: https://public.cdr.alintaenergy.com.au/cds-au/v1/discovery/status
+  - type: APIStandards
+    url: https://consumerdatastandardsaustralia.github.io/standards/
+  - type: APIReference
+    url: https://consumerdatastandardsaustralia.github.io/standards/#energy-plans
+  - type: APIReference
+    url: https://consumerdatastandardsaustralia.github.io/standards/#energy-apis
+  - type: ConsumerDataRight
+    url: >-
+      https://www.alintaenergy.com.au/help-and-support/terms-and-conditions/consumer-data-right-cdr
+  - type: Registry
+    url: https://api.cdr.gov.au/cdr-register/v1/energy/data-holders/brands/summary
+- aid: alinta-energy:alinta-energy-energy-account-balances-api
+  name: Alinta Energy Energy Account Balances API
+  description: Energy Account Balance endpoints
+  humanURL: https://consumerdatastandardsaustralia.github.io/standards/#discovery-apis
+  baseURL: https://public.cdr.alintaenergy.com.au/cds-au/v1
+  tags:
+  - Energy Account Balances
+  properties:
+  - type: OpenAPI
+    url: openapi/alinta-energy-energy-account-balances-api-openapi.yml
+  - type: APIReference
+    url: https://consumerdatastandardsaustralia.github.io/standards/#discovery-apis
+  - type: Documentation
+    url: https://consumerdatastandardsaustralia.github.io/standards/
+  - type: Status
+    url: https://public.cdr.alintaenergy.com.au/cds-au/v1/discovery/status
+  - type: APIStandards
+    url: https://consumerdatastandardsaustralia.github.io/standards/
+  - type: APIReference
+    url: https://consumerdatastandardsaustralia.github.io/standards/#energy-plans
+  - type: APIReference
+    url: https://consumerdatastandardsaustralia.github.io/standards/#energy-apis
+  - type: ConsumerDataRight
+    url: >-
+      https://www.alintaenergy.com.au/help-and-support/terms-and-conditions/consumer-data-right-cdr
+  - type: Registry
+    url: https://api.cdr.gov.au/cdr-register/v1/energy/data-holders/brands/summary
+- aid: alinta-energy:alinta-energy-energy-account-billing-api
+  name: Alinta Energy Energy Account Billing API
+  description: Energy Account Billing endpoints
+  humanURL: https://consumerdatastandardsaustralia.github.io/standards/#discovery-apis
+  baseURL: https://public.cdr.alintaenergy.com.au/cds-au/v1
+  tags:
+  - Energy Account Billing
+  properties:
+  - type: OpenAPI
+    url: openapi/alinta-energy-energy-account-billing-api-openapi.yml
+  - type: APIReference
+    url: https://consumerdatastandardsaustralia.github.io/standards/#discovery-apis
+  - type: Documentation
+    url: https://consumerdatastandardsaustralia.github.io/standards/
+  - type: Status
+    url: https://public.cdr.alintaenergy.com.au/cds-au/v1/discovery/status
+  - type: APIStandards
+    url: https://consumerdatastandardsaustralia.github.io/standards/
+  - type: APIReference
+    url: https://consumerdatastandardsaustralia.github.io/standards/#energy-plans
+  - type: APIReference
+    url: https://consumerdatastandardsaustralia.github.io/standards/#energy-apis
+  - type: ConsumerDataRight
+    url: >-
+      https://www.alintaenergy.com.au/help-and-support/terms-and-conditions/consumer-data-right-cdr
+  - type: Registry
+    url: https://api.cdr.gov.au/cdr-register/v1/energy/data-holders/brands/summary
+- aid: alinta-energy:alinta-energy-energy-accounts-api
+  name: Alinta Energy Energy Accounts API
+  description: Energy Account endpoints
+  humanURL: https://consumerdatastandardsaustralia.github.io/standards/#discovery-apis
+  baseURL: https://public.cdr.alintaenergy.com.au/cds-au/v1
+  tags:
+  - Energy Accounts
+  properties:
+  - type: OpenAPI
+    url: openapi/alinta-energy-energy-accounts-api-openapi.yml
+  - type: APIReference
+    url: https://consumerdatastandardsaustralia.github.io/standards/#discovery-apis
+  - type: Documentation
+    url: https://consumerdatastandardsaustralia.github.io/standards/
+  - type: Status
+    url: https://public.cdr.alintaenergy.com.au/cds-au/v1/discovery/status
+  - type: APIStandards
+    url: https://consumerdatastandardsaustralia.github.io/standards/
+  - type: APIReference
+    url: https://consumerdatastandardsaustralia.github.io/standards/#energy-plans
+  - type: APIReference
+    url: https://consumerdatastandardsaustralia.github.io/standards/#energy-apis
+  - type: ConsumerDataRight
+    url: >-
+      https://www.alintaenergy.com.au/help-and-support/terms-and-conditions/consumer-data-right-cdr
+  - type: Registry
+    url: https://api.cdr.gov.au/cdr-register/v1/energy/data-holders/brands/summary
+- aid: alinta-energy:alinta-energy-energy-plans-api
+  name: Alinta Energy Energy Plans API
+  description: Energy Plan endpoints
+  humanURL: https://consumerdatastandardsaustralia.github.io/standards/#discovery-apis
+  baseURL: https://public.cdr.alintaenergy.com.au/cds-au/v1
+  tags:
+  - Energy Plans
+  properties:
+  - type: OpenAPI
+    url: openapi/alinta-energy-energy-plans-api-openapi.yml
+  - type: APIReference
+    url: https://consumerdatastandardsaustralia.github.io/standards/#discovery-apis
+  - type: Documentation
+    url: https://consumerdatastandardsaustralia.github.io/standards/
+  - type: Status
+    url: https://public.cdr.alintaenergy.com.au/cds-au/v1/discovery/status
+  - type: APIStandards
+    url: https://consumerdatastandardsaustralia.github.io/standards/
+  - type: APIReference
+    url: https://consumerdatastandardsaustralia.github.io/standards/#energy-plans
+  - type: APIReference
+    url: https://consumerdatastandardsaustralia.github.io/standards/#energy-apis
+  - type: ConsumerDataRight
+    url: >-
+      https://www.alintaenergy.com.au/help-and-support/terms-and-conditions/consumer-data-right-cdr
+  - type: Registry
+    url: https://api.cdr.gov.au/cdr-register/v1/energy/data-holders/brands/summary
 common:
 - type: DomainSecurity
   url: security/alinta-energy-domain-security.yml
