@@ -19,6 +19,18 @@ description: >-
   but developer-closed: everything of substance sits behind ACCC accreditation and
   consumer consent, Alinta publishes no developer portal, no self-serve API, no
   proprietary OpenAPI and no open grid or market data of its own.
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: false
+  label: Hosted service · you call their endpoint
+  confidence: medium
+  source:
+  - openapi
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/alinta-energy.png
 tags:
 - Energy
