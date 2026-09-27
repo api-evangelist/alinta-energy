@@ -364,28 +364,68 @@ paths:
       - energy:billing:read
       x-version: '1'
 components:
+  requestBodies:
+    RequestAccountIds:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RequestAccountIdListV1'
+      description: Request payload containing a list of _accountId_ values to obtain data for.
+      required: true
   schemas:
-    EnergyBalanceListResponse_data:
+    LinksPaginated:
       properties:
-        balances:
-          description: Array of account balances.
+        self:
+          description: Fully qualified link that generated the current response document.
+          type: string
+          x-cds-type: URIString
+        first:
+          description: URI to the first page of this set. Mandatory if this response is not the first page.
+          type: string
+          x-cds-type: URIString
+        prev:
+          description: URI to the previous page of this set. Mandatory if this response is not the first page.
+          type: string
+          x-cds-type: URIString
+        next:
+          description: URI to the next page of this set. Mandatory if this response is not the last page.
+          type: string
+          x-cds-type: URIString
+        last:
+          description: URI to the last page of this set. Mandatory if this response is not the last page.
+          type: string
+          x-cds-type: URIString
+      required:
+      - self
+      type: object
+      x-conditional:
+      - first
+      - prev
+      - next
+      - last
+    ResponseErrorListV2:
+      properties:
+        errors:
+          description: List of errors.
           items:
-            $ref: '#/components/schemas/EnergyBalanceListResponse_data_balances'
+            $ref: '#/components/schemas/ErrorV2'
           type: array
       required:
-      - balances
+      - errors
       type: object
-    EnergyBalanceResponse:
+    MetaPaginated:
       properties:
-        data:
-          $ref: '#/components/schemas/EnergyBalanceResponse_data'
-        links:
-          $ref: '#/components/schemas/Links'
-        meta:
-          $ref: '#/components/schemas/Meta'
+        totalRecords:
+          description: The total number of records in the full set. See [pagination](#pagination).
+          type: integer
+          x-cds-type: NaturalNumber
+        totalPages:
+          description: The total number of pages in the full set. See [pagination](#pagination).
+          type: integer
+          x-cds-type: NaturalNumber
       required:
-      - data
-      - links
+      - totalPages
+      - totalRecords
       type: object
     RequestAccountIdListV1_data:
       properties:
@@ -396,6 +436,35 @@ components:
           type: array
       required:
       - accountIds
+      type: object
+    RequestAccountIdListV1:
+      properties:
+        data:
+          $ref: '#/components/schemas/RequestAccountIdListV1_data'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      required:
+      - data
+      type: object
+    EnergyBalanceResponse_data:
+      properties:
+        balance:
+          description: The current balance of the account. A positive value indicates that amount is owing to be paid. A negative value indicates that the account is in credit.
+          type: string
+          x-cds-type: AmountString
+      required:
+      - balance
+      type: object
+    Meta:
+      type: object
+    Links:
+      properties:
+        self:
+          description: Fully qualified link that generated the current response document.
+          type: string
+          x-cds-type: URIString
+      required:
+      - self
       type: object
     EnergyAccountId:
       description: A unique identifier for an Energy account, generated according to [CDR ID Permanence](#id-permanence) requirements.
@@ -434,6 +503,18 @@ components:
       - links
       - meta
       type: object
+    EnergyBalanceResponse:
+      properties:
+        data:
+          $ref: '#/components/schemas/EnergyBalanceResponse_data'
+        links:
+          $ref: '#/components/schemas/Links'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      required:
+      - data
+      - links
+      type: object
     EnergyBalanceListResponse_data_balances:
       properties:
         accountId:
@@ -448,88 +529,15 @@ components:
       - accountId
       - balance
       type: object
-    LinksPaginated:
+    EnergyBalanceListResponse_data:
       properties:
-        self:
-          description: Fully qualified link that generated the current response document.
-          type: string
-          x-cds-type: URIString
-        first:
-          description: URI to the first page of this set. Mandatory if this response is not the first page.
-          type: string
-          x-cds-type: URIString
-        prev:
-          description: URI to the previous page of this set. Mandatory if this response is not the first page.
-          type: string
-          x-cds-type: URIString
-        next:
-          description: URI to the next page of this set. Mandatory if this response is not the last page.
-          type: string
-          x-cds-type: URIString
-        last:
-          description: URI to the last page of this set. Mandatory if this response is not the last page.
-          type: string
-          x-cds-type: URIString
-      required:
-      - self
-      type: object
-      x-conditional:
-      - first
-      - prev
-      - next
-      - last
-    Meta:
-      type: object
-    ResponseErrorListV2:
-      properties:
-        errors:
-          description: List of errors.
+        balances:
+          description: Array of account balances.
           items:
-            $ref: '#/components/schemas/ErrorV2'
+            $ref: '#/components/schemas/EnergyBalanceListResponse_data_balances'
           type: array
       required:
-      - errors
-      type: object
-    Links:
-      properties:
-        self:
-          description: Fully qualified link that generated the current response document.
-          type: string
-          x-cds-type: URIString
-      required:
-      - self
-      type: object
-    EnergyBalanceResponse_data:
-      properties:
-        balance:
-          description: The current balance of the account. A positive value indicates that amount is owing to be paid. A negative value indicates that the account is in credit.
-          type: string
-          x-cds-type: AmountString
-      required:
-      - balance
-      type: object
-    RequestAccountIdListV1:
-      properties:
-        data:
-          $ref: '#/components/schemas/RequestAccountIdListV1_data'
-        meta:
-          $ref: '#/components/schemas/Meta'
-      required:
-      - data
-      type: object
-    MetaPaginated:
-      properties:
-        totalRecords:
-          description: The total number of records in the full set. See [pagination](#pagination).
-          type: integer
-          x-cds-type: NaturalNumber
-        totalPages:
-          description: The total number of pages in the full set. See [pagination](#pagination).
-          type: integer
-          x-cds-type: NaturalNumber
-      required:
-      - totalPages
-      - totalRecords
+      - balances
       type: object
     ErrorV2_meta:
       description: Additional data for customised error codes.
@@ -555,11 +563,3 @@ components:
       schema:
         type: string
       style: simple
-  requestBodies:
-    RequestAccountIds:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/RequestAccountIdListV1'
-      description: Request payload containing a list of _accountId_ values to obtain data for.
-      required: true
