@@ -23,3 +23,25 @@
     detected: '2026-10-12'
   status: not-a-workflow
   arazzo: null
+- slug: alinta-energy-arcadia
+  label: Arcadia
+  partner: arcadia-power
+  partner_name: Arcadia
+  type: coverage
+  channel: partner-built
+  evidence: https://api.arcadia.com/plug/providers/public
+  source: edge
+  relationship: system-coverage
+  contract_reference:
+    list: Arcadia Plug provider coverage (public list)
+    spec_file: null
+    listed_name: Alinta Energy
+    listed_id: prv_1e8d0568-9427-da2d-932a-060f3bfcfb4c
+    matched_domain: alintaenergy.com.au
+    service_types:
+    - Electric
+    - Natural Gas
+    detected_by: sweep-energy.py
+    detected: '2026-10-13'
+  status: not-a-workflow
+  arazzo: null
