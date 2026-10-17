@@ -365,38 +365,14 @@ paths:
       x-version: '1'
 components:
   schemas:
-    ErrorV2:
+    Links:
       properties:
-        code:
-          description: The code of the error encountered. Where the error is specific to the respondent, an application-specific error code, expressed as a string value. If the error is application-specific, the URN code that the specific error extends must be provided in the _meta_ object. Otherwise, the value is the error code URN.
+        self:
+          description: Fully qualified link that generated the current response document.
           type: string
-        title:
-          description: A short, human-readable summary of the problem that **MUST NOT** change from occurrence to occurrence of the problem represented by the error code.
-          type: string
-        detail:
-          description: A human-readable explanation specific to this occurrence of the problem.
-          type: string
-        meta:
-          $ref: '#/components/schemas/ErrorV2_meta'
+          x-cds-type: URIString
       required:
-      - code
-      - detail
-      - title
-      type: object
-      x-conditional:
-      - meta
-    EnergyAccountId:
-      description: A unique identifier for an Energy account, generated according to [CDR ID Permanence](#id-permanence) requirements.
-      type: string
-      x-cds-type: ASCIIString
-    RequestAccountIdListV1:
-      properties:
-        data:
-          $ref: '#/components/schemas/RequestAccountIdListV1_data'
-        meta:
-          $ref: '#/components/schemas/Meta'
-      required:
-      - data
+      - self
       type: object
     RequestAccountIdListV1_data:
       properties:
@@ -407,74 +383,6 @@ components:
           type: array
       required:
       - accountIds
-      type: object
-    EnergyBalanceResponse_data:
-      properties:
-        balance:
-          description: The current balance of the account. A positive value indicates that amount is owing to be paid. A negative value indicates that the account is in credit.
-          type: string
-          x-cds-type: AmountString
-      required:
-      - balance
-      type: object
-    ErrorV2_meta:
-      description: Additional data for customised error codes.
-      properties:
-        urn:
-          description: The CDR error code URN which the application-specific error code extends. Mandatory if the error _code_ is an application-specific error rather than a standardised error code.
-          type: string
-      type: object
-      x-conditional:
-      - urn
-    MetaPaginated:
-      properties:
-        totalRecords:
-          description: The total number of records in the full set. See [pagination](#pagination).
-          type: integer
-          x-cds-type: NaturalNumber
-        totalPages:
-          description: The total number of pages in the full set. See [pagination](#pagination).
-          type: integer
-          x-cds-type: NaturalNumber
-      required:
-      - totalPages
-      - totalRecords
-      type: object
-    EnergyBalanceListResponse_data:
-      properties:
-        balances:
-          description: Array of account balances.
-          items:
-            $ref: '#/components/schemas/EnergyBalanceListResponse_data_balances'
-          type: array
-      required:
-      - balances
-      type: object
-    ResponseErrorListV2:
-      properties:
-        errors:
-          description: List of errors.
-          items:
-            $ref: '#/components/schemas/ErrorV2'
-          type: array
-      required:
-      - errors
-      type: object
-    EnergyBalanceListResponse_data_balances:
-      properties:
-        accountId:
-          allOf:
-          - $ref: '#/components/schemas/EnergyAccountId'
-          description: Unique identifier for the account.
-        balance:
-          description: The current balance of the account. A positive value indicates that amount is owing to be paid. A negative value indicates that the account is in credit.
-          type: string
-          x-cds-type: AmountString
-      required:
-      - accountId
-      - balance
-      type: object
-    Meta:
       type: object
     LinksPaginated:
       properties:
@@ -506,18 +414,34 @@ components:
       - prev
       - next
       - last
-    EnergyBalanceListResponse:
+    RequestAccountIdListV1:
       properties:
         data:
-          $ref: '#/components/schemas/EnergyBalanceListResponse_data'
-        links:
-          $ref: '#/components/schemas/LinksPaginated'
+          $ref: '#/components/schemas/RequestAccountIdListV1_data'
         meta:
-          $ref: '#/components/schemas/MetaPaginated'
+          $ref: '#/components/schemas/Meta'
       required:
       - data
-      - links
-      - meta
+      type: object
+    ResponseErrorListV2:
+      properties:
+        errors:
+          description: List of errors.
+          items:
+            $ref: '#/components/schemas/ErrorV2'
+          type: array
+      required:
+      - errors
+      type: object
+    EnergyBalanceListResponse_data:
+      properties:
+        balances:
+          description: Array of account balances.
+          items:
+            $ref: '#/components/schemas/EnergyBalanceListResponse_data_balances'
+          type: array
+      required:
+      - balances
       type: object
     EnergyBalanceResponse:
       properties:
@@ -531,14 +455,90 @@ components:
       - data
       - links
       type: object
-    Links:
+    EnergyBalanceListResponse_data_balances:
       properties:
-        self:
-          description: Fully qualified link that generated the current response document.
+        accountId:
+          allOf:
+          - $ref: '#/components/schemas/EnergyAccountId'
+          description: Unique identifier for the account.
+        balance:
+          description: The current balance of the account. A positive value indicates that amount is owing to be paid. A negative value indicates that the account is in credit.
           type: string
-          x-cds-type: URIString
+          x-cds-type: AmountString
       required:
-      - self
+      - accountId
+      - balance
+      type: object
+    EnergyBalanceListResponse:
+      properties:
+        data:
+          $ref: '#/components/schemas/EnergyBalanceListResponse_data'
+        links:
+          $ref: '#/components/schemas/LinksPaginated'
+        meta:
+          $ref: '#/components/schemas/MetaPaginated'
+      required:
+      - data
+      - links
+      - meta
+      type: object
+    EnergyBalanceResponse_data:
+      properties:
+        balance:
+          description: The current balance of the account. A positive value indicates that amount is owing to be paid. A negative value indicates that the account is in credit.
+          type: string
+          x-cds-type: AmountString
+      required:
+      - balance
+      type: object
+    ErrorV2_meta:
+      description: Additional data for customised error codes.
+      properties:
+        urn:
+          description: The CDR error code URN which the application-specific error code extends. Mandatory if the error _code_ is an application-specific error rather than a standardised error code.
+          type: string
+      type: object
+      x-conditional:
+      - urn
+    Meta:
+      type: object
+    EnergyAccountId:
+      description: A unique identifier for an Energy account, generated according to [CDR ID Permanence](#id-permanence) requirements.
+      type: string
+      x-cds-type: ASCIIString
+    ErrorV2:
+      properties:
+        code:
+          description: The code of the error encountered. Where the error is specific to the respondent, an application-specific error code, expressed as a string value. If the error is application-specific, the URN code that the specific error extends must be provided in the _meta_ object. Otherwise, the value is the error code URN.
+          type: string
+        title:
+          description: A short, human-readable summary of the problem that **MUST NOT** change from occurrence to occurrence of the problem represented by the error code.
+          type: string
+        detail:
+          description: A human-readable explanation specific to this occurrence of the problem.
+          type: string
+        meta:
+          $ref: '#/components/schemas/ErrorV2_meta'
+      required:
+      - code
+      - detail
+      - title
+      type: object
+      x-conditional:
+      - meta
+    MetaPaginated:
+      properties:
+        totalRecords:
+          description: The total number of records in the full set. See [pagination](#pagination).
+          type: integer
+          x-cds-type: NaturalNumber
+        totalPages:
+          description: The total number of pages in the full set. See [pagination](#pagination).
+          type: integer
+          x-cds-type: NaturalNumber
+      required:
+      - totalPages
+      - totalRecords
       type: object
   headers:
     XFAPIInteractionId:
